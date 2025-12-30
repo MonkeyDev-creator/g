@@ -3,6 +3,7 @@ import {
   orders,
   type InsertOrder,
   type Order,
+  type UpdateOrderStatus,
 } from "@shared/schema";
 import { eq } from "drizzle-orm";
 
@@ -11,6 +12,7 @@ export interface IStorage {
   getOrder(id: number): Promise<Order | undefined>;
   getOrdersByEmail(email: string): Promise<Order[]>;
   createOrder(order: InsertOrder): Promise<Order>;
+  updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -24,7 +26,6 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOrdersByEmail(email: string): Promise<Order[]> {
-    // Basic case-insensitive search could be done here, but strictly following schema for now
     return await db.select().from(orders).where(eq(orders.email, email));
   }
 
@@ -32,6 +33,15 @@ export class DatabaseStorage implements IStorage {
     const [order] = await db
       .insert(orders)
       .values(insertOrder)
+      .returning();
+    return order;
+  }
+
+  async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
+    const [order] = await db
+      .update(orders)
+      .set({ status })
+      .where(eq(orders.id, id))
       .returning();
     return order;
   }

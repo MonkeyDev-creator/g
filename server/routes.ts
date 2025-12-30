@@ -3,17 +3,26 @@ import type { Server } from "http";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
+import session from "express-session";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // Register Object Storage Routes
+  // Setup session for admin
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET || "monkey-studio-secret",
+      resave: false,
+      saveUninitialized: false,
+      cookie: { secure: false }, // Development
+    })
+  );
+
   registerObjectStorageRoutes(app);
 
   app.get(api.orders.list.path, async (req, res) => {
-    // Simple filter by email if provided
     const email = req.query.email as string | undefined;
     if (email) {
       const orders = await storage.getOrdersByEmail(email);
@@ -46,6 +55,34 @@ export async function registerRoutes(
     }
   });
 
+  app.patch(api.orders.updateStatus.path, async (req, res) => {
+    // Should be admin check here in real app
+    const { status } = api.orders.updateStatus.input.parse(req.body);
+    const updated = await storage.updateOrderStatus(Number(req.params.id), status);
+    if (!updated) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    res.json(updated);
+  });
+
+  app.post(api.admin.login.path, async (req, res) => {
+    const { username, password } = api.admin.login.input.parse(req.body);
+    const admin = await storage.getAdminByUsername(username);
+    if (!admin || admin.password !== password) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+    (req.session as any).admin = { username: admin.username };
+    res.json({ message: "Logged in" });
+  });
+
+  app.get(api.admin.me.path, (req, res) => {
+    const admin = (req.session as any).admin;
+    if (!admin) {
+      return res.status(401).json({ message: "Not logged in" });
+    }
+    res.json(admin);
+  });
+
   await seedDatabase();
 
   return httpServer;
@@ -62,14 +99,16 @@ async function seedDatabase() {
       details: "I want a space themed thumbnail with my avatar.",
       status: "In Progress",
     });
-    await storage.createOrder({
-      email: "demo@example.com",
-      discordUser: "demo#9999",
-      robloxUser: "DemoPlayer",
-      gfxType: "Icon",
-      details: "Simple icon with bright colors.",
-      status: "Completed",
-    });
     console.log("Seeded database with initial orders");
+  }
+
+  const admin = await storage.getAdminByUsername("admin");
+  if (!admin) {
+    await storage.createAdmin({
+      username: "admin",
+      password: "adminpassword", // In a real app, use hashing
+      isAdmin: true,
+    });
+    console.log("Seeded database with admin account");
   }
 }

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { insertOrderSchema, orders } from "./schema";
+import { insertOrderSchema, orders, updateOrderStatusSchema } from "./schema";
 
 export const api = {
   orders: {
@@ -27,6 +27,16 @@ export const api = {
       path: "/api/orders/:id",
       responses: {
         200: z.custom<typeof orders.$inferSelect>(),
+        404: z.object({ message: z.string() }),
+      },
+    },
+    updateStatus: {
+      method: "PATCH" as const,
+      path: "/api/orders/:id/status",
+      input: updateOrderStatusSchema,
+      responses: {
+        200: z.custom<typeof orders.$inferSelect>(),
+        400: z.object({ message: z.string() }),
         404: z.object({ message: z.string() }),
       },
     },

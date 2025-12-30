@@ -20,5 +20,10 @@ export const insertOrderSchema = createInsertSchema(orders).omit({
   status: true,
 });
 
+export const updateOrderStatusSchema = z.object({
+  status: z.enum(["Pending", "In Progress", "Completed", "Cancelled"]),
+});
+
 export type Order = typeof orders.$inferSelect;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
+export type UpdateOrderStatus = z.infer<typeof updateOrderStatusSchema>;
