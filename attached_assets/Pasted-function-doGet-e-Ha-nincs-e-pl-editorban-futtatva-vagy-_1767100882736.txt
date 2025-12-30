@@ -1,0 +1,126 @@
+function doGet(e) {
+  // Ha nincs e (pl. editorban futtatva), vagy nincs parameter objektum → biztonságos alapérték
+  e = e || {};
+  var params = e.parameter || {};
+  var userEmail = (params.email || "").trim();
+
+  if (!userEmail) {
+    // Ha nincs email az URL-ben
+    return HtmlService.createHtmlOutput(`
+      <!DOCTYPE html>
+      <html>
+        <head><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+        <body style="font-family: Arial, sans-serif; text-align: center; padding: 100px; background: #f0f2f5;">
+          <h2 style="color: #ff6600;">Monkey Studio GFX - Order Tracking</h2>
+          <p style="font-size: 18px; color: #d14836;">
+            ⚠️ Hozzáférés megtagadva<br><br>
+            Kérlek, jelentkezz be Google fiókkal a főoldalon (index.html)!
+          </p>
+        </body>
+      </html>
+    `).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
+
+  // Sheet betöltése
+  var SHEET_ID = '1LJFK0q9hJqoq75wAdxCCNvf1qYS6sbNKd1yJYsid300';
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName('Sheet1');
+  var data = sheet.getDataRange().getValues();
+
+  var html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base target="_top">
+        <style>
+          body { font-family: 'Roboto', Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+          .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); overflow: hidden; }
+          .header { background: #ff6600; color: white; padding: 30px; text-align: center; }
+          .header h2 { margin: 0; font-size: 28px; }
+          .content { padding: 30px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          th { background: #ff6600; color: white; padding: 15px; text-align: center; }
+          td { padding: 15px; border-bottom: 1px solid #eee; text-align: center; }
+          tr:hover { background: #fff3e6; transition: 0.3s; }
+          .status-ready { color: #28a745; font-weight: bold; }
+          .status-progress { color: #ffc107; font-weight: bold; }
+          .status-pending { color: #dc3545; font-weight: bold; }
+          .file-link { color: #ff6600; text-decoration: none; font-weight: bold; }
+          .file-link:hover { text-decoration: underline; }
+          .no-orders { text-align: center; font-size: 18px; color: #666; padding: 40px; }
+        </style>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h2>Monkey Studio GFX - Order Tracking</h2>
+            <p>Szia, <strong>${userEmail}</strong>!</p>
+          </div>
+          <div class="content">
+  `;
+
+  var found = false;
+  for (var i = 1; i < data.length; i++) {
+    var visibility = (data[i][9] || 'Only Email').toString().trim();
+    var rowEmail = (data[i][2] || '').toString().trim().toLowerCase();
+
+    if (visibility === 'Anyone' || rowEmail === userEmail.toLowerCase()) {
+      found = true;
+      var status = data[i][4] || 'Pending';
+      var statusClass = 'status-pending';
+      var statusIcon = '⏳';
+      if (status === 'Completed' || status === 'Ready') {
+        statusClass = 'status-ready';
+        statusIcon = '✅';
+      } else if (status === 'In Progress') {
+        statusClass = 'status-progress';
+        statusIcon = '🛠️';
+      }
+
+      var fileUrl = data[i][8] || '';
+      var fileLink = fileUrl ? 
+        `<a href="${fileUrl}" target="_blank" class="file-link">Letöltés 📁</a>` : 
+        'Nincs még fájl';
+
+      html += `
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Részletek</th>
+              <th>Státusz</th>
+              <th>Utolsó frissítés</th>
+              <th>Fájl</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>${data[i][0]}</strong></td>
+              <td style="text-align: left;">${data[i][3]}</td>
+              <td class="${statusClass}">${statusIcon} ${status}</td>
+              <td>${data[i][6]}</td>
+              <td>${fileLink}</td>
+            </tr>
+          </tbody>
+        </table>
+        <br>
+      `;
+    }
+  }
+
+  if (!found) {
+    html += `<div class="no-orders">Nincs még aktív rendelésed. 😊<br>Új rendeléshez gyere a Discord szerverre!</div>`;
+  }
+
+  html += `
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  return HtmlService.createHtmlOutput(html)
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+    .setTitle('Monkey Studio - Order Tracking');
+}
