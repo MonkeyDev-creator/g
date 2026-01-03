@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Package, Clock, CheckCircle, XCircle, Loader2, ArrowRight } from "lucide-react";
+import { Search, Package, Clock, CheckCircle, XCircle, Loader2, ArrowRight, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 
@@ -90,6 +90,8 @@ function OrderCard({ order }: { order: any }) {
     switch (status.toLowerCase()) {
       case "pending": return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
       case "in progress": return "bg-blue-500/10 text-blue-500 border-blue-500/20";
+      case "making": return "bg-orange-500/10 text-orange-500 border-orange-500/20";
+      case "ready": return "bg-purple-500/10 text-purple-500 border-purple-500/20";
       case "completed": return "bg-green-500/10 text-green-500 border-green-500/20";
       default: return "bg-zinc-500/10 text-zinc-500 border-zinc-500/20";
     }
@@ -119,11 +121,16 @@ function OrderCard({ order }: { order: any }) {
                 </h3>
                 <p className="text-zinc-500 font-bold text-sm">Order #{order.id.toString().padStart(4, '0')}</p>
               </div>
-              {order.imageUrl && (
-                <a href={order.imageUrl} target="_blank" rel="noreferrer" className="p-3 bg-primary/10 rounded-2xl hover:bg-primary/20 transition-colors group/link">
-                  <ImageIcon className="w-6 h-6 text-primary" />
-                </a>
-              )}
+              <div className="flex gap-2">
+                <Button variant="ghost" className="text-zinc-500 hover:text-primary gap-2 font-bold uppercase tracking-tighter text-xs h-9">
+                  <MessageCircle className="w-4 h-4" /> Contact Owner
+                </Button>
+                {order.status === "Completed" && order.imageUrl && (
+                  <a href={order.imageUrl} download target="_blank" rel="noreferrer" className="p-3 bg-primary/10 rounded-2xl hover:bg-primary/20 transition-colors group/link">
+                    <CheckCircle className="w-6 h-6 text-primary" />
+                  </a>
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

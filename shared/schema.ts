@@ -35,7 +35,7 @@ export const insertAdminSchema = createInsertSchema(admins).omit({
 });
 
 export const updateOrderStatusSchema = z.object({
-  status: z.enum(["Pending", "In Progress", "Completed", "Cancelled"]),
+  status: z.enum(["Pending", "In Progress", "Making", "Ready", "Completed", "Cancelled"]),
 });
 
 export type Order = typeof orders.$inferSelect;
