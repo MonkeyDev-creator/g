@@ -22,6 +22,7 @@ export async function registerRoutes(
 
   registerObjectStorageRoutes(app);
 
+  // Orders API
   app.get(api.orders.list.path, async (req, res) => {
     const email = req.query.email as string | undefined;
     if (email) {
@@ -47,24 +48,36 @@ export async function registerRoutes(
       res.status(201).json(order);
     } catch (err) {
       if (err instanceof z.ZodError) {
-        return res.status(400).json({
-          message: err.errors[0].message,
-        });
+        return res.status(400).json({ message: err.errors[0].message });
       }
       throw err;
     }
   });
 
   app.patch(api.orders.updateStatus.path, async (req, res) => {
-    // Should be admin check here in real app
-    const { status } = api.orders.updateStatus.input.parse(req.body);
-    const updated = await storage.updateOrderStatus(Number(req.params.id), status);
-    if (!updated) {
-      return res.status(404).json({ message: "Order not found" });
+    if (!(req.session as any).admin) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
-    res.json(updated);
+    try {
+      const { status } = api.orders.updateStatus.input.parse(req.body);
+      const updated = await storage.updateOrderStatus(Number(req.params.id), status);
+      if (!updated) return res.status(404).json({ message: "Order not found" });
+      res.json(updated);
+    } catch (err) {
+      res.status(400).json({ message: "Invalid status" });
+    }
   });
 
+  app.delete(api.orders.delete.path, async (req, res) => {
+    if (!(req.session as any).admin) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    const success = await storage.deleteOrder(Number(req.params.id));
+    if (!success) return res.status(404).json({ message: "Order not found" });
+    res.status(204).end();
+  });
+
+  // Admin API
   app.post(api.admin.login.path, async (req, res) => {
     const { username, password } = api.admin.login.input.parse(req.body);
     const admin = await storage.getAdminByUsername(username);
@@ -77,14 +90,28 @@ export async function registerRoutes(
 
   app.get(api.admin.me.path, (req, res) => {
     const admin = (req.session as any).admin;
-    if (!admin) {
-      return res.status(401).json({ message: "Not logged in" });
-    }
+    if (!admin) return res.status(401).json({ message: "Not logged in" });
     res.json(admin);
   });
 
-  await seedDatabase();
+  app.get(api.admin.list.path, async (req, res) => {
+    if (!(req.session as any).admin) return res.status(401).json({ message: "Unauthorized" });
+    const adminsList = await storage.getAdmins();
+    res.json(adminsList);
+  });
 
+  app.post(api.admin.create.path, async (req, res) => {
+    if (!(req.session as any).admin) return res.status(401).json({ message: "Unauthorized" });
+    try {
+      const input = api.admin.create.input.parse(req.body);
+      const newAdmin = await storage.createAdmin(input);
+      res.status(201).json(newAdmin);
+    } catch (err) {
+      res.status(400).json({ message: "Failed to create admin" });
+    }
+  });
+
+  await seedDatabase();
   return httpServer;
 }
 
@@ -99,14 +126,14 @@ async function seedDatabase() {
       details: "I want a space themed thumbnail with my avatar.",
       status: "In Progress",
     });
-    console.log("Seeded database with initial orders");
   }
 
   const admin = await storage.getAdminByUsername("admin");
   if (!admin) {
     await storage.createAdmin({
+      email: "genshin187anime@gmail.com",
       username: "admin",
-      password: "adminpassword", // In a real app, use hashing
+      password: "adminpassword",
       isAdmin: true,
     });
     console.log("Seeded database with admin account");

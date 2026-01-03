@@ -1,6 +1,15 @@
-import { pgTable, text, serial, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+
+export const admins = pgTable("admins", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+  isAdmin: boolean("is_admin").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
 
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
@@ -20,10 +29,17 @@ export const insertOrderSchema = createInsertSchema(orders).omit({
   status: true,
 });
 
+export const insertAdminSchema = createInsertSchema(admins).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const updateOrderStatusSchema = z.object({
   status: z.enum(["Pending", "In Progress", "Completed", "Cancelled"]),
 });
 
 export type Order = typeof orders.$inferSelect;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
+export type Admin = typeof admins.$inferSelect;
+export type InsertAdmin = z.infer<typeof insertAdminSchema>;
 export type UpdateOrderStatus = z.infer<typeof updateOrderStatusSchema>;

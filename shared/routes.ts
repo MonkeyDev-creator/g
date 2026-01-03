@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { insertOrderSchema, orders, updateOrderStatusSchema } from "./schema";
+import { insertOrderSchema, orders, updateOrderStatusSchema, insertAdminSchema, admins } from "./schema";
 
 export const api = {
   orders: {
@@ -38,6 +38,52 @@ export const api = {
         200: z.custom<typeof orders.$inferSelect>(),
         400: z.object({ message: z.string() }),
         404: z.object({ message: z.string() }),
+      },
+    },
+    delete: {
+      method: "DELETE" as const,
+      path: "/api/orders/:id",
+      responses: {
+        204: z.void(),
+        404: z.object({ message: z.string() }),
+      },
+    },
+  },
+  admin: {
+    me: {
+      method: "GET" as const,
+      path: "/api/admin/me",
+      responses: {
+        200: z.object({ username: z.string() }),
+        401: z.object({ message: z.string() }),
+      },
+    },
+    login: {
+      method: "POST" as const,
+      path: "/api/admin/login",
+      input: z.object({
+        username: z.string(),
+        password: z.string(),
+      }),
+      responses: {
+        200: z.object({ message: z.string() }),
+        401: z.object({ message: z.string() }),
+      },
+    },
+    list: {
+      method: "GET" as const,
+      path: "/api/admin/users",
+      responses: {
+        200: z.array(z.custom<typeof admins.$inferSelect>()),
+      },
+    },
+    create: {
+      method: "POST" as const,
+      path: "/api/admin/users",
+      input: insertAdminSchema,
+      responses: {
+        201: z.custom<typeof admins.$inferSelect>(),
+        400: z.object({ message: z.string() }),
       },
     },
   },

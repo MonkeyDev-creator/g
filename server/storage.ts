@@ -1,18 +1,29 @@
 import { db } from "./db";
 import {
   orders,
+  admins,
   type InsertOrder,
   type Order,
   type UpdateOrderStatus,
+  type Admin,
+  type InsertAdmin,
 } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export interface IStorage {
+  // Orders
   getOrders(): Promise<Order[]>;
   getOrder(id: number): Promise<Order | undefined>;
   getOrdersByEmail(email: string): Promise<Order[]>;
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
+  deleteOrder(id: number): Promise<boolean>;
+
+  // Admins
+  getAdmin(id: number): Promise<Admin | undefined>;
+  getAdminByUsername(username: string): Promise<Admin | undefined>;
+  getAdmins(): Promise<Admin[]>;
+  createAdmin(admin: InsertAdmin): Promise<Admin>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -44,6 +55,30 @@ export class DatabaseStorage implements IStorage {
       .where(eq(orders.id, id))
       .returning();
     return order;
+  }
+
+  async deleteOrder(id: number): Promise<boolean> {
+    const result = await db.delete(orders).where(eq(orders.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getAdmin(id: number): Promise<Admin | undefined> {
+    const [admin] = await db.select().from(admins).where(eq(admins.id, id));
+    return admin;
+  }
+
+  async getAdminByUsername(username: string): Promise<Admin | undefined> {
+    const [admin] = await db.select().from(admins).where(eq(admins.username, username));
+    return admin;
+  }
+
+  async getAdmins(): Promise<Admin[]> {
+    return await db.select().from(admins);
+  }
+
+  async createAdmin(insertAdmin: InsertAdmin): Promise<Admin> {
+    const [admin] = await db.insert(admins).values(insertAdmin).returning();
+    return admin;
   }
 }
 
