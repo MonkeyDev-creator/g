@@ -78,38 +78,44 @@ export async function registerRoutes(
   });
 
   // Admin API
-  app.post(api.admin.login.path, async (req, res) => {
-    const { username, password } = api.admin.login.input.parse(req.body);
-    const admin = await storage.getAdminByUsername(username);
-    if (!admin || admin.password !== password) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-    (req.session as any).admin = { username: admin.username };
-    res.json({ message: "Logged in" });
-  });
+  if (api.admin) {
+    app.post(api.admin.login.path, async (req, res) => {
+      try {
+        const { username, password } = api.admin.login.input.parse(req.body);
+        const admin = await storage.getAdminByUsername(username);
+        if (!admin || admin.password !== password) {
+          return res.status(401).json({ message: "Invalid credentials" });
+        }
+        (req.session as any).admin = { username: admin.username };
+        res.json({ message: "Logged in" });
+      } catch (err) {
+        res.status(400).json({ message: "Invalid input" });
+      }
+    });
 
-  app.get(api.admin.me.path, (req, res) => {
-    const admin = (req.session as any).admin;
-    if (!admin) return res.status(401).json({ message: "Not logged in" });
-    res.json(admin);
-  });
+    app.get(api.admin.me.path, (req, res) => {
+      const admin = (req.session as any).admin;
+      if (!admin) return res.status(401).json({ message: "Not logged in" });
+      res.json(admin);
+    });
 
-  app.get(api.admin.list.path, async (req, res) => {
-    if (!(req.session as any).admin) return res.status(401).json({ message: "Unauthorized" });
-    const adminsList = await storage.getAdmins();
-    res.json(adminsList);
-  });
+    app.get(api.admin.list.path, async (req, res) => {
+      if (!(req.session as any).admin) return res.status(401).json({ message: "Unauthorized" });
+      const adminsList = await storage.getAdmins();
+      res.json(adminsList);
+    });
 
-  app.post(api.admin.create.path, async (req, res) => {
-    if (!(req.session as any).admin) return res.status(401).json({ message: "Unauthorized" });
-    try {
-      const input = api.admin.create.input.parse(req.body);
-      const newAdmin = await storage.createAdmin(input);
-      res.status(201).json(newAdmin);
-    } catch (err) {
-      res.status(400).json({ message: "Failed to create admin" });
-    }
-  });
+    app.post(api.admin.create.path, async (req, res) => {
+      if (!(req.session as any).admin) return res.status(401).json({ message: "Unauthorized" });
+      try {
+        const input = api.admin.create.input.parse(req.body);
+        const newAdmin = await storage.createAdmin(input);
+        res.status(201).json(newAdmin);
+      } catch (err) {
+        res.status(400).json({ message: "Failed to create admin" });
+      }
+    });
+  }
 
   await seedDatabase();
   return httpServer;

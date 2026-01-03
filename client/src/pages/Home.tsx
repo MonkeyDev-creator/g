@@ -1,134 +1,116 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowRight, Star, Shield, Zap, Image as ImageIcon } from "lucide-react";
+import { ArrowRight, Star, Shield, Zap, Image as ImageIcon, ChevronRight, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+const img13131 = "https://www.figma.com/api/mcp/asset/064bf2b7-0250-4b34-9788-b538c68a9a75";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-hidden">
+    <div className="min-h-screen bg-[#0a0c10] text-foreground overflow-x-hidden">
       {/* Hero Section */}
-      <section className="relative pt-20 pb-32 md:pt-32 md:pb-48">
-        {/* Background Gradients */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-purple-500/10 blur-[100px] rounded-full pointer-events-none" />
+      <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+        {/* Figma Inspired Background */}
+        <div className="absolute top-0 right-0 w-[60%] h-full opacity-30 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/20 blur-[150px] rounded-full" />
+        </div>
 
-        <div className="container mx-auto px-4 relative z-10 text-center">
+        <div className="container mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
           >
-            <span className="inline-block px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-medium mb-6">
-              Next Level GFX Design
-            </span>
-            <h1 className="font-display text-5xl md:text-7xl font-bold leading-tight mb-6 tracking-tight">
-              Level Up Your <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-orange-400 to-yellow-500 text-glow">
-                Visual Identity
-              </span>
+            <h1 className="text-6xl md:text-8xl font-black leading-[0.9] text-white mb-8 tracking-tighter uppercase italic text-glow">
+              Get GFX with <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-orange-500 to-yellow-500">ease,</span> <br />
+              <span className="text-zinc-800">without any knowledge</span>
             </h1>
-            <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-              Premium graphics for Roblox, Discord, and content creators. 
-              High-quality thumbnails, icons, and ads delivered with speed.
+            <p className="text-zinc-500 text-xl max-w-md mb-10 font-medium">
+              Join our Discord to start your journey. Premium graphics delivered by experts.
             </p>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/order">
-                <Button size="lg" className="rounded-full text-lg px-8 h-14 bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all duration-300">
-                  Order Now <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
+            <div className="flex flex-col sm:flex-row items-start gap-4">
+              <Button size="lg" className="h-16 px-10 text-xl rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest shadow-2xl shadow-primary/40 transform hover:-translate-y-1 transition-all">
+                Join Discord <MessageSquare className="ml-3 w-6 h-6" />
+              </Button>
               <Link href="/tracking">
-                <Button variant="outline" size="lg" className="rounded-full text-lg px-8 h-14 border-white/10 hover:bg-white/5 hover:text-white transition-all">
-                  Track Order
+                <Button variant="outline" size="lg" className="h-16 px-10 text-xl rounded-2xl border-zinc-800 text-white hover:bg-white/5 font-bold uppercase tracking-tight">
+                  Track Orders
                 </Button>
               </Link>
             </div>
           </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="relative"
+          >
+             <div className="absolute -inset-4 bg-primary/20 blur-2xl rounded-[42px] -z-10 animate-pulse" />
+             <div className="border-4 border-zinc-800/50 rounded-[42px] overflow-hidden shadow-2xl bg-zinc-900 shadow-primary/20">
+               <img src={img13131} alt="Portfolio" className="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-700" />
+             </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="py-20 bg-black/20 border-y border-white/5">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <FeatureCard 
-              icon={<Zap className="w-8 h-8 text-primary" />}
-              title="Fast Delivery"
-              description="Get your high-quality GFX delivered within 24-48 hours. Speed meets quality."
-            />
-            <FeatureCard 
-              icon={<Star className="w-8 h-8 text-primary" />}
-              title="Premium Quality"
-              description="4K resolution, professional lighting, and stunning post-processing effects."
-            />
-            <FeatureCard 
-              icon={<Shield className="w-8 h-8 text-primary" />}
-              title="Secure Orders"
-              description="Track your order status in real-time. Transparent process from start to finish."
-            />
+      {/* Showcase Section */}
+      <section className="py-32 bg-[#0d0f14] relative border-y border-zinc-800/50">
+        <div className="container mx-auto px-6">
+          <div className="flex justify-between items-end mb-16">
+            <div>
+              <h2 className="text-5xl font-black text-white uppercase italic tracking-tighter mb-4">Past Works</h2>
+              <p className="text-zinc-500 max-w-sm">Professional graphics tailored for high-performance studios.</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <PortfolioItem img="https://www.figma.com/api/mcp/asset/44c21c47-0a7d-4a55-9e16-3261cd07cea6" title="Cyberpunk Vibe" />
+            <PortfolioItem img="https://www.figma.com/api/mcp/asset/35f9a014-eca3-4b00-bd99-5732fb376870" title="Monkey King" />
+            <PortfolioItem img="https://www.figma.com/api/mcp/asset/6adbac62-cc97-48a7-bd39-a0ba541ddcc6" title="Neon Night" />
+            <PortfolioItem img={img13131} title="Battle Royale" />
           </div>
         </div>
       </section>
 
-      {/* Portfolio Preview */}
-      <section className="py-24">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="font-display text-4xl font-bold mb-4">Latest Works</h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              Check out some of our recent commissions. From game thumbnails to profile icons.
-            </p>
+      {/* Discord Section */}
+      <section className="py-24 bg-gradient-to-b from-[#0d0f14] to-[#0a0c10]">
+        <div className="container mx-auto px-6">
+          <div className="bg-[#101218] border border-zinc-800 rounded-[42px] p-12 md:p-20 relative overflow-hidden text-center">
+             <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/5 blur-[100px] rounded-full" />
+             <div className="relative z-10 flex flex-col items-center">
+               <h2 className="text-4xl md:text-6xl font-black text-white uppercase italic tracking-tighter mb-8 leading-none max-w-2xl">
+                 Ordering is handled <br /><span className="text-primary">Exclusively</span> via Discord
+               </h2>
+               <p className="text-zinc-500 text-xl mb-12 max-w-md">
+                 Use our custom bot in the server to place orders and upload assets directly.
+               </p>
+               <Button className="h-16 px-12 rounded-2xl bg-[#5865F2] hover:bg-[#4752C4] text-white font-black uppercase tracking-wider text-lg shadow-xl shadow-[#5865F2]/20 group">
+                 Join Monkey Studio Discord <ArrowRight className="ml-3 group-hover:translate-x-1 transition-transform" />
+               </Button>
+             </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Using colored divs as placeholders instead of stock images for GFX */}
-            <PortfolioItem color="from-purple-600 to-blue-600" title="Game Thumbnail" category="Roblox" />
-            <PortfolioItem color="from-orange-500 to-red-600" title="Profile Icon" category="Discord" />
-            <PortfolioItem color="from-green-500 to-emerald-700" title="Group Ad" category="Advertisement" />
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-primary/5"></div>
-        <div className="container mx-auto px-4 text-center relative z-10">
-          <h2 className="font-display text-4xl md:text-5xl font-bold mb-8">Ready to transform your look?</h2>
-          <Link href="/order">
-            <Button size="lg" className="rounded-full text-lg px-10 h-16 bg-white text-black hover:bg-gray-100 hover:scale-105 transition-all duration-300 font-bold">
-              Start Your Order
-            </Button>
-          </Link>
         </div>
       </section>
     </div>
   );
 }
 
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
+function PortfolioItem({ img, title }: { img: string, title: string }) {
   return (
-    <div className="p-8 rounded-2xl bg-card border border-white/5 hover:border-primary/50 transition-colors duration-300 group">
-      <div className="mb-6 p-4 rounded-xl bg-primary/10 w-fit group-hover:bg-primary/20 transition-colors">
-        {icon}
-      </div>
-      <h3 className="text-xl font-bold mb-3">{title}</h3>
-      <p className="text-muted-foreground leading-relaxed">{description}</p>
-    </div>
-  );
-}
-
-function PortfolioItem({ color, title, category }: { color: string, title: string, category: string }) {
-  return (
-    <div className="group relative aspect-video rounded-xl overflow-hidden cursor-pointer">
-      <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-80 group-hover:opacity-100 transition-opacity duration-300`} />
-      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-sm">
-        <div className="text-center">
-          <ImageIcon className="w-10 h-10 mx-auto mb-2 text-white" />
-          <h3 className="font-bold text-lg text-white">{title}</h3>
-          <p className="text-sm text-white/80">{category}</p>
+    <motion.div 
+      whileHover={{ y: -10 }}
+      className="group relative aspect-square bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-800 hover:border-primary/50 transition-all duration-300"
+    >
+      <img src={img} alt={title} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
+        <div>
+          <p className="text-primary font-bold uppercase text-xs tracking-[0.2em] mb-1">Featured</p>
+          <h3 className="text-xl font-black text-white uppercase italic tracking-tighter">{title}</h3>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

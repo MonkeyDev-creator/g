@@ -1,68 +1,61 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --font-body: 'Inter', sans-serif;
-  --font-display: 'Outfit', sans-serif;
-
-  /* Dark Gaming Theme Base */
-  --background: 240 10% 4%;
-  --foreground: 0 0% 98%;
-
-  --card: 240 10% 6%;
-  --card-foreground: 0 0% 98%;
-
-  --popover: 240 10% 6%;
-  --popover-foreground: 0 0% 98%;
-
-  /* Neon Orange Primary */
-  --primary: 24 95% 53%;
-  --primary-foreground: 240 10% 4%;
-
-  --secondary: 240 6% 15%;
-  --secondary-foreground: 0 0% 98%;
-
-  --muted: 240 6% 15%;
-  --muted-foreground: 240 5% 65%;
-
-  --accent: 240 6% 15%;
-  --accent-foreground: 24 95% 53%;
-
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 98%;
-
-  --border: 240 6% 20%;
-  --input: 240 6% 20%;
-  --ring: 24 95% 53%;
-
-  --radius: 0.75rem;
+@layer base {
+  :root {
+    --background: 220 15% 5%;
+    --foreground: 0 0% 100%;
+    
+    --card: 220 15% 8%;
+    --card-foreground: 0 0% 100%;
+    
+    --popover: 220 15% 8%;
+    --popover-foreground: 0 0% 100%;
+    
+    --primary: 24 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 220 15% 15%;
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 220 15% 15%;
+    --muted-foreground: 220 10% 60%;
+    
+    --accent: 220 15% 20%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 220 15% 15%;
+    --input: 220 15% 15%;
+    --ring: 24 100% 50%;
+    
+    --radius: 1rem;
+  }
 }
 
 @layer base {
-  body {
-    @apply bg-background text-foreground antialiased selection:bg-primary/30 selection:text-primary-foreground;
-    font-family: var(--font-body);
+  * {
+    @apply border-zinc-800;
   }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
-    @apply font-bold tracking-tight;
+  body {
+    @apply bg-[#0a0c10] text-white selection:bg-primary/30 selection:text-white;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-@layer utilities {
-  .text-glow {
-    text-shadow: 0 0 20px hsl(var(--primary) / 0.5);
-  }
-  
-  .border-glow {
-    box-shadow: 0 0 15px -3px hsl(var(--primary) / 0.3);
-  }
+.font-display {
+  font-family: 'Archivo Black', sans-serif;
+}
 
-  .glass-card {
-    @apply bg-card/80 backdrop-blur-md border border-white/10 shadow-xl;
-  }
+.text-glow {
+  text-shadow: 0 0 30px hsl(var(--primary) / 0.3);
+}
+
+.glass-card {
+  background: rgba(16, 18, 24, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }

@@ -7,6 +7,8 @@ import { Navbar } from "@/components/Navbar";
 import Home from "@/pages/Home";
 import Order from "@/pages/Order";
 import Tracking from "@/pages/Tracking";
+import AdminLogin from "@/pages/AdminLogin";
+import AdminDashboard from "@/pages/AdminDashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -15,6 +17,8 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/order" component={Order} />
       <Route path="/tracking" component={Tracking} />
+      <Route path="/admin" component={AdminLogin} />
+      <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -24,7 +28,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="min-h-screen bg-background font-sans antialiased selection:bg-primary selection:text-primary-foreground">
+        <div className="min-h-screen bg-[#0a0c10] font-sans antialiased selection:bg-primary selection:text-primary-foreground">
           <Navbar />
           <Router />
           <Toaster />

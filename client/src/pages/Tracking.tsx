@@ -4,151 +4,151 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Package, Clock, CheckCircle, XCircle, Loader2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { Search, Package, Clock, CheckCircle, XCircle, Loader2, ArrowRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 
 export default function Tracking() {
   const [emailSearch, setEmailSearch] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
-  
   const { data: orders, isLoading, isError } = useOrders(activeSearch);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (emailSearch.trim()) {
-      setActiveSearch(emailSearch.trim());
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "pending": return "bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20 border-yellow-500/20";
-      case "in progress": return "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 border-blue-500/20";
-      case "completed": return "bg-green-500/10 text-green-500 hover:bg-green-500/20 border-green-500/20";
-      case "cancelled": return "bg-red-500/10 text-red-500 hover:bg-red-500/20 border-red-500/20";
-      default: return "bg-secondary text-secondary-foreground";
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "completed": return <CheckCircle className="w-4 h-4 mr-1" />;
-      case "cancelled": return <XCircle className="w-4 h-4 mr-1" />;
-      default: return <Clock className="w-4 h-4 mr-1" />;
-    }
+    if (emailSearch.trim()) setActiveSearch(emailSearch.trim());
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-20 bg-background text-foreground">
+    <div className="min-h-screen pt-32 pb-20 bg-[#0a0c10] text-white">
       <div className="container mx-auto px-4 max-w-4xl">
-        <div className="text-center mb-12">
-          <h1 className="font-display text-4xl font-bold mb-4">Track Your Order</h1>
-          <p className="text-muted-foreground text-lg">
-            Enter your email address to check the status of your commissions.
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-16"
+        >
+          <h1 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter mb-6 text-glow">
+            Order Tracking
+          </h1>
+          <p className="text-zinc-500 text-xl font-medium max-w-xl mx-auto">
+            Check the live status of your Monkey Studio commissions.
           </p>
-        </div>
+        </motion.div>
 
         {/* Search Box */}
-        <div className="max-w-md mx-auto mb-16">
-          <form onSubmit={handleSearch} className="flex gap-2">
+        <div className="max-w-2xl mx-auto mb-20">
+          <form onSubmit={handleSearch} className="flex gap-3 bg-zinc-900/50 p-2 rounded-[24px] border border-zinc-800/50 backdrop-blur-xl">
             <Input 
               type="email" 
-              placeholder="Enter your email..." 
+              placeholder="Enter your email address..." 
               value={emailSearch}
               onChange={(e) => setEmailSearch(e.target.value)}
-              className="h-12 bg-card border-white/10 rounded-xl focus:ring-primary/20 focus:border-primary/50"
+              className="h-14 bg-transparent border-0 rounded-xl focus-visible:ring-0 text-lg px-6 placeholder:text-zinc-600"
             />
-            <Button type="submit" size="lg" className="h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
-              <Search className="w-5 h-5" />
+            <Button type="submit" size="lg" className="h-14 px-8 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest shadow-lg shadow-primary/20">
+              Search <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
           </form>
         </div>
 
-        {/* Results Area */}
-        {activeSearch && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            {isLoading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="w-10 h-10 text-primary animate-spin" />
-              </div>
-            ) : isError ? (
-              <div className="text-center py-10 bg-red-500/5 rounded-xl border border-red-500/10">
-                <p className="text-red-400 font-medium">Something went wrong fetching your orders.</p>
-              </div>
-            ) : orders && orders.length > 0 ? (
-              <div className="space-y-4">
-                <h2 className="text-xl font-bold mb-4 px-1 flex items-center">
-                  <Package className="w-5 h-5 mr-2 text-primary" /> 
-                  Found {orders.length} Order{orders.length !== 1 ? 's' : ''}
-                </h2>
-                {orders.map((order) => (
-                  <Card key={order.id} className="bg-card/50 border-white/5 overflow-hidden hover:border-primary/30 transition-colors">
-                    <CardHeader className="pb-3 border-b border-white/5 bg-white/[0.02]">
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div>
-                          <CardTitle className="text-lg font-display tracking-wide">{order.gfxType} Commission</CardTitle>
-                          <CardDescription className="mt-1">
-                            Placed on {order.createdAt ? format(new Date(order.createdAt), "MMMM do, yyyy") : "Unknown Date"}
-                          </CardDescription>
-                        </div>
-                        <Badge variant="outline" className={`${getStatusColor(order.status)} px-3 py-1 text-sm border font-medium`}>
-                          {getStatusIcon(order.status)}
-                          {order.status}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-1">
-                          <p className="text-xs uppercase text-muted-foreground font-bold tracking-wider">Details</p>
-                          <p className="text-sm leading-relaxed text-gray-300">{order.details || "No details provided."}</p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-xs uppercase text-muted-foreground font-bold tracking-wider">User Info</p>
-                          <div className="flex flex-col gap-1">
-                            <p className="text-sm text-gray-400"><span className="text-primary/70">Discord:</span> {order.discordUser}</p>
-                            <p className="text-sm text-gray-400"><span className="text-primary/70">Roblox:</span> {order.robloxUser}</p>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {order.imageUrl && (
-                        <div className="mt-6 pt-4 border-t border-white/5">
-                          <p className="text-xs uppercase text-muted-foreground font-bold tracking-wider mb-2">Reference Image</p>
-                          <a 
-                            href={order.imageUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline text-sm flex items-center gap-1"
-                          >
-                            View Uploaded Reference <span className="text-xs">↗</span>
-                          </a>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-16 bg-card/30 rounded-2xl border border-white/5 border-dashed">
-                <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-bold mb-2">No orders found</h3>
-                <p className="text-muted-foreground max-w-sm mx-auto">
-                  We couldn't find any orders associated with <strong>{activeSearch}</strong>. 
-                  Please check the spelling or place a new order.
-                </p>
-                <Link href="/order" className="mt-6 inline-block">
-                  <Button variant="outline">Place Order Now</Button>
-                </Link>
-              </div>
-            )}
-          </motion.div>
-        )}
+        {/* Results */}
+        <AnimatePresence mode="wait">
+          {activeSearch && (
+            <motion.div
+              key={activeSearch}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-20 gap-4">
+                  <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                  <p className="text-zinc-500 font-bold uppercase tracking-widest">Searching orders...</p>
+                </div>
+              ) : orders && orders.length > 0 ? (
+                <div className="grid grid-cols-1 gap-6">
+                  {orders.map((order) => (
+                    <OrderCard key={order.id} order={order} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-24 bg-zinc-900/30 rounded-[42px] border border-zinc-800 border-dashed">
+                  <Package className="w-16 h-16 text-zinc-800 mx-auto mb-6" />
+                  <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-2">No Commissions Found</h3>
+                  <p className="text-zinc-500 font-medium">We couldn't find any orders for <span className="text-white">{activeSearch}</span></p>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+function OrderCard({ order }: { order: any }) {
+  const getStatusStyle = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "pending": return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
+      case "in progress": return "bg-blue-500/10 text-blue-500 border-blue-500/20";
+      case "completed": return "bg-green-500/10 text-green-500 border-green-500/20";
+      default: return "bg-zinc-500/10 text-zinc-500 border-zinc-500/20";
+    }
+  };
+
+  return (
+    <Card className="bg-[#101218] border-zinc-800 rounded-[32px] overflow-hidden group hover:border-primary/30 transition-all duration-500">
+      <CardContent className="p-0">
+        <div className="flex flex-col md:flex-row">
+          {/* Status Bar */}
+          <div className="md:w-48 bg-zinc-900/50 p-8 flex flex-col justify-center items-center gap-4 border-b md:border-b-0 md:border-r border-zinc-800/50">
+             <Badge className={`${getStatusStyle(order.status)} rounded-full px-4 py-1 font-black uppercase tracking-tight text-xs border`}>
+               {order.status}
+             </Badge>
+             <div className="text-center">
+               <p className="text-[10px] text-zinc-600 font-black uppercase tracking-widest mb-1">Created</p>
+               <p className="text-sm font-bold text-zinc-400">{format(new Date(order.createdAt), "MMM d, yy")}</p>
+             </div>
+          </div>
+
+          {/* Details */}
+          <div className="flex-1 p-8 md:p-10">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h3 className="text-3xl font-black uppercase italic tracking-tighter text-white leading-none mb-2">
+                  {order.gfxType}
+                </h3>
+                <p className="text-zinc-500 font-bold text-sm">Order #{order.id.toString().padStart(4, '0')}</p>
+              </div>
+              {order.imageUrl && (
+                <a href={order.imageUrl} target="_blank" rel="noreferrer" className="p-3 bg-primary/10 rounded-2xl hover:bg-primary/20 transition-colors group/link">
+                  <ImageIcon className="w-6 h-6 text-primary" />
+                </a>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.2em] mb-3">Project Details</p>
+                <p className="text-zinc-400 text-sm leading-relaxed line-clamp-3 italic">"{order.details || "No special instructions provided."}"</p>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.2em] mb-2">Discord Identity</p>
+                  <p className="text-sm font-bold text-zinc-300 flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-primary" /> {order.discordUser}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.2em] mb-2">Roblox Profile</p>
+                  <p className="text-sm font-bold text-zinc-300 flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-blue-500" /> {order.robloxUser}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
