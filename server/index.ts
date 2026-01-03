@@ -59,8 +59,11 @@ app.use((req, res, next) => {
   next();
 });
 
+import { setupDiscordBot } from "./discord";
+
 (async () => {
   await registerRoutes(httpServer, app);
+  setupDiscordBot();
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
