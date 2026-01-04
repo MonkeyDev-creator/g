@@ -21,6 +21,38 @@ export async function setupDiscordBot() {
       .setName('setup-gfx')
       .setDescription('Set up the GFX ordering message in the current channel')
       .toJSON(),
+    new SlashCommandBuilder()
+      .setName('list-orders')
+      .setDescription('List all current orders')
+      .toJSON(),
+    new SlashCommandBuilder()
+      .setName('update-status')
+      .setDescription('Update the status of an order')
+      .addIntegerOption(option => 
+        option.setName('id')
+          .setDescription('The ID of the order')
+          .setRequired(true))
+      .addStringOption(option =>
+        option.setName('status')
+          .setDescription('The new status')
+          .setRequired(true)
+          .addChoices(
+            { name: 'Pending', value: 'Pending' },
+            { name: 'In Progress', value: 'In Progress' },
+            { name: 'Making', value: 'Making' },
+            { name: 'Ready', value: 'Ready' },
+            { name: 'Completed', value: 'Completed' },
+            { name: 'Cancelled', value: 'Cancelled' }
+          ))
+      .toJSON(),
+    new SlashCommandBuilder()
+      .setName('delete-order')
+      .setDescription('Delete an order')
+      .addIntegerOption(option => 
+        option.setName('id')
+          .setDescription('The ID of the order to delete')
+          .setRequired(true))
+      .toJSON(),
   ];
 
   const rest = new REST({ version: '10' }).setToken(token);
@@ -42,8 +74,9 @@ export async function setupDiscordBot() {
 
   client.on("interactionCreate", async (interaction) => {
     if (interaction.isChatInputCommand()) {
+      const isAdmin = (interaction.member?.permissions as any).has(BigInt(8)); // Administrator permission bit
+      
       if (interaction.commandName === 'setup-gfx') {
-        const isAdmin = (interaction.member?.permissions as any).has(BigInt(8)); // Administrator permission bit
         if (!isAdmin) {
           await interaction.reply({ content: "You don't have permission to use this command.", ephemeral: true });
           return;
@@ -67,6 +100,52 @@ export async function setupDiscordBot() {
         const channel = interaction.channel;
         if (channel && 'send' in channel) {
           await (channel as any).send({ embeds: [embed], components: [row] });
+        }
+      } else if (interaction.commandName === 'list-orders') {
+        if (!isAdmin) {
+          await interaction.reply({ content: "Unauthorized.", ephemeral: true });
+          return;
+        }
+
+        const allOrders = await storage.getOrders();
+        if (allOrders.length === 0) {
+          await interaction.reply({ content: "No orders found.", ephemeral: true });
+          return;
+        }
+
+        const embed = new EmbedBuilder()
+          .setTitle("📋 Current Orders")
+          .setColor("#FF6B00")
+          .setDescription(allOrders.map(o => `**#${o.id}** - ${o.gfxType} (${o.status})`).join('\n').slice(0, 4096));
+
+        await interaction.reply({ embeds: [embed], ephemeral: true });
+      } else if (interaction.commandName === 'update-status') {
+        if (!isAdmin) {
+          await interaction.reply({ content: "Unauthorized.", ephemeral: true });
+          return;
+        }
+
+        const id = interaction.options.getInteger('id', true);
+        const status = interaction.options.getString('status', true);
+
+        const updated = await storage.updateOrderStatus(id, status);
+        if (updated) {
+          await interaction.reply({ content: `✅ Order #${id} updated to ${status}.`, ephemeral: true });
+        } else {
+          await interaction.reply({ content: `❌ Order #${id} not found.`, ephemeral: true });
+        }
+      } else if (interaction.commandName === 'delete-order') {
+        if (!isAdmin) {
+          await interaction.reply({ content: "Unauthorized.", ephemeral: true });
+          return;
+        }
+
+        const id = interaction.options.getInteger('id', true);
+        const success = await storage.deleteOrder(id);
+        if (success) {
+          await interaction.reply({ content: `✅ Order #${id} deleted.`, ephemeral: true });
+        } else {
+          await interaction.reply({ content: `❌ Order #${id} not found.`, ephemeral: true });
         }
       }
     }
