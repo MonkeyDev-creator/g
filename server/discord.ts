@@ -16,30 +16,39 @@ export function setupDiscordBot() {
     ],
   });
 
-  client.once("ready", () => {
+  client.once("clientReady", () => {
     console.log(`Logged in as ${client.user?.tag}!`);
   });
 
   // Simple command to spawn the ordering message
   client.on("messageCreate", async (message) => {
-    if (message.content === "!setup-gfx") {
-      if (!message.member?.permissions.has("Administrator")) return;
+    if (message.content.startsWith("!setup-gfx")) {
+      // Allow if admin OR has specific permission
+      const isAdmin = message.member?.permissions.has("Administrator");
+      if (!isAdmin) {
+        return;
+      }
 
-      const embed = new EmbedBuilder()
-        .setTitle("🎨 Monkey Studio GFX Ordering")
-        .setDescription("Click the button below to place your GFX order! Our team will review it shortly.")
-        .setColor("#FF6B00")
-        .setThumbnail(client.user?.displayAvatarURL() || null);
+      try {
+        const embed = new EmbedBuilder()
+          .setTitle("🎨 Monkey Studio GFX Ordering")
+          .setDescription("Click the button below to place your GFX order! Our team will review it shortly.")
+          .setColor("#FF6B00")
+          .setThumbnail(client.user?.displayAvatarURL() || null);
 
-      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId("open_order_modal")
-          .setLabel("Place Order")
-          .setStyle(ButtonStyle.Primary)
-          .setEmoji("🛒")
-      );
+        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+          new ButtonBuilder()
+            .setCustomId("open_order_modal")
+            .setLabel("Place Order")
+            .setStyle(ButtonStyle.Primary)
+            .setEmoji("🛒")
+        );
 
-      await message.channel.send({ embeds: [embed], components: [row] });
+        await message.channel.send({ embeds: [embed], components: [row] });
+        if (message.deletable) await message.delete();
+      } catch (error) {
+        console.error("Error setting up GFX command:", error);
+      }
     }
   });
 

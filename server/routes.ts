@@ -93,9 +93,13 @@ export async function registerRoutes(
       }
     });
 
-    app.get(api.admin.me.path, (req, res) => {
-      const admin = (req.session as any).admin;
-      if (!admin) return res.status(401).json({ message: "Not logged in" });
+    app.get(api.admin.me.path, async (req, res) => {
+      const adminSession = (req.session as any).admin;
+      if (!adminSession) return res.status(401).json({ message: "Not logged in" });
+      
+      const admin = await storage.getAdminByUsername(adminSession.username);
+      if (!admin) return res.status(401).json({ message: "Admin not found" });
+      
       res.json(admin);
     });
 
