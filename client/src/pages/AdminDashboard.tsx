@@ -180,6 +180,19 @@ export default function AdminDashboard() {
                           <Button size="icon" variant="ghost" className="h-9 w-9 bg-zinc-900 border border-zinc-800 text-zinc-500 hover:text-blue-400 rounded-xl" title={order.discordUser}>
                             <MessageSquare className="w-4 h-4" />
                           </Button>
+                          <Button 
+                            size="icon" 
+                            variant="outline" 
+                            className="h-9 w-9 bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-primary rounded-xl"
+                            onClick={() => {
+                              const subject = encodeURIComponent(`Your GFX Order #${order.id.toString().padStart(3, '0')} is Ready!`);
+                              const body = encodeURIComponent(`Hi!\n\nYour GFX order is ready and waiting for you on Monkey Studio.\n\nYou can track and download it here: ${window.location.origin}/tracking\n\nBest regards,\nMonkey Studio Team`);
+                              window.location.href = `mailto:${order.email}?subject=${subject}&body=${body}`;
+                            }}
+                            title="Email Customer"
+                          >
+                            <Plus className="w-4 h-4 rotate-45" />
+                          </Button>
                         </div>
                       </td>
                       <td className="px-8 py-6 text-right">
