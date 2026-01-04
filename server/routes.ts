@@ -6,19 +6,14 @@ import { z } from "zod";
 import session from "express-session";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 
+import { sessionSettings } from "./session";
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
   // Setup session for admin
-  app.use(
-    session({
-      secret: process.env.SESSION_SECRET || "monkey-studio-secret",
-      resave: false,
-      saveUninitialized: false,
-      cookie: { secure: false }, // Development
-    })
-  );
+  app.use(session(sessionSettings));
 
   registerObjectStorageRoutes(app);
 
