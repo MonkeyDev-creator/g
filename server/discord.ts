@@ -64,7 +64,10 @@ export async function setupDiscordBot() {
         );
 
         await interaction.reply({ content: "Setting up ordering menu...", ephemeral: true });
-        await interaction.channel?.send({ embeds: [embed], components: [row] });
+        const channel = interaction.channel;
+        if (channel && 'send' in channel) {
+          await (channel as any).send({ embeds: [embed], components: [row] });
+        }
       }
     }
 
