@@ -1,7 +1,7 @@
-import { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, InteractionType } from "discord.js";
+import { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, InteractionType, REST, Routes, SlashCommandBuilder } from "discord.js";
 import { storage } from "./storage";
 
-export function setupDiscordBot() {
+export async function setupDiscordBot() {
   const token = process.env.DISCORD_BOT_TOKEN;
   if (!token) {
     console.log("No DISCORD_BOT_TOKEN found, skipping bot setup");
@@ -16,20 +16,39 @@ export function setupDiscordBot() {
     ],
   });
 
-  client.once("clientReady", () => {
+  const commands = [
+    new SlashCommandBuilder()
+      .setName('setup-gfx')
+      .setDescription('Set up the GFX ordering message in the current channel')
+      .toJSON(),
+  ];
+
+  const rest = new REST({ version: '10' }).setToken(token);
+
+  client.once("clientReady", async () => {
     console.log(`Logged in as ${client.user?.tag}!`);
+    
+    try {
+      console.log('Started refreshing application (/) commands.');
+      await rest.put(
+        Routes.applicationCommands(client.user!.id),
+        { body: commands },
+      );
+      console.log('Successfully reloaded application (/) commands.');
+    } catch (error) {
+      console.error(error);
+    }
   });
 
-  // Simple command to spawn the ordering message
-  client.on("messageCreate", async (message) => {
-    if (message.content.startsWith("!setup-gfx")) {
-      // Allow if admin OR has specific permission
-      const isAdmin = message.member?.permissions.has("Administrator");
-      if (!isAdmin) {
-        return;
-      }
+  client.on("interactionCreate", async (interaction) => {
+    if (interaction.isChatInputCommand()) {
+      if (interaction.commandName === 'setup-gfx') {
+        const isAdmin = (interaction.member?.permissions as any).has(BigInt(8)); // Administrator permission bit
+        if (!isAdmin) {
+          await interaction.reply({ content: "You don't have permission to use this command.", ephemeral: true });
+          return;
+        }
 
-      try {
         const embed = new EmbedBuilder()
           .setTitle("🎨 Monkey Studio GFX Ordering")
           .setDescription("Click the button below to place your GFX order! Our team will review it shortly.")
@@ -44,15 +63,11 @@ export function setupDiscordBot() {
             .setEmoji("🛒")
         );
 
-        await message.channel.send({ embeds: [embed], components: [row] });
-        if (message.deletable) await message.delete();
-      } catch (error) {
-        console.error("Error setting up GFX command:", error);
+        await interaction.reply({ content: "Setting up ordering menu...", ephemeral: true });
+        await interaction.channel?.send({ embeds: [embed], components: [row] });
       }
     }
-  });
 
-  client.on("interactionCreate", async (interaction) => {
     if (interaction.isButton()) {
       if (interaction.customId === "open_order_modal") {
         const modal = new ModalBuilder()

@@ -134,7 +134,7 @@ async function seedDatabase() {
       robloxUser: "CoolRobloxPlayer",
       gfxType: "Thumbnail",
       details: "I want a space themed thumbnail with my avatar.",
-      status: "In Progress",
+      imageUrl: null,
     });
   }
 
