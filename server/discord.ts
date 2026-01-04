@@ -96,20 +96,20 @@ export async function setupDiscordBot() {
             .setEmoji("🛒")
         );
 
-        await interaction.reply({ content: "Setting up ordering menu...", ephemeral: true });
+        await interaction.reply({ content: "Setting up ordering menu...", flags: [4096] });
         const channel = interaction.channel;
         if (channel && 'send' in channel) {
           await (channel as any).send({ embeds: [embed], components: [row] });
         }
       } else if (interaction.commandName === 'list-orders') {
         if (!isAdmin) {
-          await interaction.reply({ content: "Unauthorized.", ephemeral: true });
+          await interaction.reply({ content: "Unauthorized.", flags: [4096] });
           return;
         }
 
         const allOrders = await storage.getOrders();
         if (allOrders.length === 0) {
-          await interaction.reply({ content: "No orders found.", ephemeral: true });
+          await interaction.reply({ content: "No orders found.", flags: [4096] });
           return;
         }
 
@@ -118,10 +118,10 @@ export async function setupDiscordBot() {
           .setColor("#FF6B00")
           .setDescription(allOrders.map(o => `**#${o.id}** - ${o.gfxType} (${o.status})`).join('\n').slice(0, 4096));
 
-        await interaction.reply({ embeds: [embed], ephemeral: true });
+        await interaction.reply({ embeds: [embed], flags: [4096] });
       } else if (interaction.commandName === 'update-status') {
         if (!isAdmin) {
-          await interaction.reply({ content: "Unauthorized.", ephemeral: true });
+          await interaction.reply({ content: "Unauthorized.", flags: [4096] });
           return;
         }
 
@@ -130,22 +130,22 @@ export async function setupDiscordBot() {
 
         const updated = await storage.updateOrderStatus(id, status);
         if (updated) {
-          await interaction.reply({ content: `✅ Order #${id} updated to ${status}.`, ephemeral: true });
+          await interaction.reply({ content: `✅ Order #${id} updated to ${status}.`, flags: [4096] });
         } else {
-          await interaction.reply({ content: `❌ Order #${id} not found.`, ephemeral: true });
+          await interaction.reply({ content: `❌ Order #${id} not found.`, flags: [4096] });
         }
       } else if (interaction.commandName === 'delete-order') {
         if (!isAdmin) {
-          await interaction.reply({ content: "Unauthorized.", ephemeral: true });
+          await interaction.reply({ content: "Unauthorized.", flags: [4096] });
           return;
         }
 
         const id = interaction.options.getInteger('id', true);
         const success = await storage.deleteOrder(id);
         if (success) {
-          await interaction.reply({ content: `✅ Order #${id} deleted.`, ephemeral: true });
+          await interaction.reply({ content: `✅ Order #${id} deleted.`, flags: [4096] });
         } else {
-          await interaction.reply({ content: `❌ Order #${id} not found.`, ephemeral: true });
+          await interaction.reply({ content: `❌ Order #${id} not found.`, flags: [4096] });
         }
       }
     }
@@ -214,13 +214,13 @@ export async function setupDiscordBot() {
 
           await interaction.reply({
             content: "✅ Your order has been placed! You can track it on our website using your email.",
-            ephemeral: true,
+            flags: [4096], // Ephemeral flag
           });
         } catch (error) {
           console.error("Error creating order from Discord:", error);
           await interaction.reply({
             content: "❌ There was an error processing your order. Please try again later.",
-            ephemeral: true,
+            flags: [4096], // Ephemeral flag
           });
         }
       }
