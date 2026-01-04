@@ -154,6 +154,7 @@ export default function AdminDashboard() {
                         <div className="flex flex-col">
                           <span className="text-white font-bold text-sm">#{order.id.toString().padStart(3, '0')}</span>
                           <span className="text-zinc-500 text-xs font-medium">{order.email}</span>
+                          <span className="text-zinc-600 text-[10px] font-medium mt-1">@{order.discordUser}</span>
                         </div>
                       </td>
                       <td className="px-8 py-6">

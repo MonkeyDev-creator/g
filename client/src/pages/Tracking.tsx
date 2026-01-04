@@ -142,13 +142,13 @@ function OrderCard({ order }: { order: any }) {
                 <div>
                   <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.2em] mb-2">Discord Identity</p>
                   <p className="text-sm font-bold text-zinc-300 flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-primary" /> {order.discordUser}
+                    <span className="w-2 h-2 rounded-full bg-primary" /> {order.discordUser}
                   </p>
                 </div>
                 <div>
                   <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.2em] mb-2">Roblox Profile</p>
                   <p className="text-sm font-bold text-zinc-300 flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-blue-500" /> {order.robloxUser}
+                    <span className="w-2 h-2 rounded-full bg-blue-500" /> {order.robloxUser}
                   </p>
                 </div>
               </div>
