@@ -2,6 +2,7 @@ import { db } from "./db";
 import {
   orders,
   admins,
+  systemSettings,
   type InsertOrder,
   type Order,
   type UpdateOrderStatus,
@@ -24,6 +25,10 @@ export interface IStorage {
   getAdminByUsername(username: string): Promise<Admin | undefined>;
   getAdmins(): Promise<Admin[]>;
   createAdmin(admin: InsertAdmin): Promise<Admin>;
+
+  // System Settings
+  getMaintenanceMode(): Promise<boolean>;
+  setMaintenanceMode(enabled: boolean): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -79,6 +84,20 @@ export class DatabaseStorage implements IStorage {
   async createAdmin(insertAdmin: InsertAdmin): Promise<Admin> {
     const [admin] = await db.insert(admins).values(insertAdmin).returning();
     return admin;
+  }
+
+  async getMaintenanceMode(): Promise<boolean> {
+    const [settings] = await db.select().from(systemSettings).where(eq(systemSettings.id, 1));
+    return settings?.maintenanceMode || false;
+  }
+
+  async setMaintenanceMode(enabled: boolean): Promise<void> {
+    const [existing] = await db.select().from(systemSettings).where(eq(systemSettings.id, 1));
+    if (existing) {
+      await db.update(systemSettings).set({ maintenanceMode: enabled }).where(eq(systemSettings.id, 1));
+    } else {
+      await db.insert(systemSettings).values({ id: 1, maintenanceMode: enabled });
+    }
   }
 }
 

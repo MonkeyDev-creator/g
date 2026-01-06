@@ -15,7 +15,9 @@ import {
   ExternalLink,
   MessageSquare,
   Settings,
-  Download
+  Download,
+  AlertTriangle,
+  RefreshCw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -39,7 +41,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function AdminDashboard() {
   const { data: admin, isLoading: adminLoading } = useAdminMe();
@@ -48,6 +50,27 @@ export default function AdminDashboard() {
   const { toast } = useToast();
   const { logout } = useAdminAuth();
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isMaintenance, setIsMaintenance] = useState(false);
+
+  // Fetch maintenance status
+  useEffect(() => {
+    fetch("/api/admin/maintenance")
+      .then(res => res.json())
+      .then(data => setIsMaintenance(data.enabled));
+  }, []);
+
+  const toggleMaintenance = async () => {
+    try {
+      await apiRequest("POST", "/api/admin/maintenance", { enabled: !isMaintenance });
+      setIsMaintenance(!isMaintenance);
+      toast({ 
+        title: isMaintenance ? "Maintenance Disabled" : "Maintenance Enabled", 
+        description: isMaintenance ? "Website is now live for everyone." : "Only admins can access the site now."
+      });
+    } catch (e) {
+      toast({ title: "Error", description: "Failed to toggle maintenance mode.", variant: "destructive" });
+    }
+  };
 
   if (adminLoading) return <div className="flex h-screen items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>;
   if (!admin) {
@@ -103,6 +126,14 @@ export default function AdminDashboard() {
           </motion.div>
 
           <div className="flex gap-3">
+            <Button 
+              variant={isMaintenance ? "destructive" : "outline"} 
+              onClick={toggleMaintenance}
+              className="border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 rounded-xl"
+            >
+              {isMaintenance ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <AlertTriangle className="w-4 h-4 mr-2 text-yellow-500" />}
+              {isMaintenance ? "Disable Maintenance" : "Under Maintenance"}
+            </Button>
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant="outline" className="border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 rounded-xl">

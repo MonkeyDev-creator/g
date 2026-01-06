@@ -17,6 +17,33 @@ export async function registerRoutes(
 
   registerObjectStorageRoutes(app);
 
+  // Maintenance Middleware
+  app.use(async (req, res, next) => {
+    const isMaintenance = await storage.getMaintenanceMode();
+    const isAdmin = (req.session as any).admin;
+    
+    if (isMaintenance && !isAdmin && !req.path.startsWith('/api/admin/login') && !req.path.startsWith('/api/admin/me')) {
+      if (req.path.startsWith('/api')) {
+        return res.status(503).json({ message: "System under maintenance" });
+      }
+      // For frontend routes, we'll handle this in the client but also provide a fallback
+    }
+    next();
+  });
+
+  // Maintenance API
+  app.get("/api/admin/maintenance", async (req, res) => {
+    const enabled = await storage.getMaintenanceMode();
+    res.json({ enabled });
+  });
+
+  app.post("/api/admin/maintenance", async (req, res) => {
+    if (!(req.session as any).admin) return res.status(401).json({ message: "Unauthorized" });
+    const { enabled } = req.body;
+    await storage.setMaintenanceMode(enabled);
+    res.json({ message: `Maintenance mode ${enabled ? 'enabled' : 'disabled'}` });
+  });
+
   // Orders API
   app.get(api.orders.list.path, async (req, res) => {
     const email = req.query.email as string | undefined;
