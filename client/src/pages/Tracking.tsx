@@ -4,9 +4,28 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Package, Clock, CheckCircle, XCircle, Loader2, ArrowRight, MessageCircle } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { format } from "date-fns";
+import { 
+  Search, 
+  Package, 
+  Clock, 
+  CheckCircle, 
+  XCircle, 
+  Loader2, 
+  ArrowRight, 
+  MessageCircle,
+  Download,
+  CreditCard
+} from "lucide-react";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger,
+  DialogDescription
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function Tracking() {
   const [emailSearch, setEmailSearch] = useState("");
@@ -30,7 +49,7 @@ export default function Tracking() {
             Order Tracking
           </h1>
           <p className="text-zinc-500 text-xl font-medium max-w-xl mx-auto">
-            Check the live status of your Monkey Studio commissions.
+            Check the live status of your Monkey Studio commissions and complete payments.
           </p>
         </motion.div>
 
@@ -86,6 +105,8 @@ export default function Tracking() {
 }
 
 function OrderCard({ order }: { order: any }) {
+  const { toast } = useToast();
+
   const getStatusStyle = (status: string) => {
     switch (status.toLowerCase()) {
       case "pending": return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
@@ -94,6 +115,25 @@ function OrderCard({ order }: { order: any }) {
       case "ready": return "bg-purple-500/10 text-purple-500 border-purple-500/20";
       case "completed": return "bg-green-500/10 text-green-500 border-green-500/20";
       default: return "bg-zinc-500/10 text-zinc-500 border-zinc-500/20";
+    }
+  };
+
+  const getPaymentStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "paid": return "bg-green-500/10 text-green-500 border-green-500/20";
+      case "pending verif": return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
+      case "refunded": return "bg-red-500/10 text-red-500 border-red-500/20";
+      default: return "bg-zinc-500/10 text-zinc-500 border-zinc-500/20";
+    }
+  };
+
+  const handleUpdatePaymentStatus = async (orderId: number, paymentStatus: string) => {
+    try {
+      await apiRequest("PATCH", `/api/orders/${orderId}/payment`, { paymentStatus });
+      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+      toast({ title: "Verification Requested", description: "Admin will verify your payment shortly." });
+    } catch (e) {
+      toast({ title: "Error", description: "Failed to update status.", variant: "destructive" });
     }
   };
 
@@ -121,15 +161,52 @@ function OrderCard({ order }: { order: any }) {
                 </h3>
                 <p className="text-zinc-500 font-bold text-sm">Order #{order.id.toString().padStart(4, '0')}</p>
               </div>
-              <div className="flex gap-2">
-                <Button variant="ghost" className="text-zinc-500 hover:text-primary gap-2 font-bold uppercase tracking-tighter text-xs h-9">
-                  <MessageCircle className="w-4 h-4" /> Contact Owner
-                </Button>
-                {order.status === "Completed" && order.imageUrl && (
-                  <a href={order.imageUrl} download target="_blank" rel="noreferrer" className="p-3 bg-primary/10 rounded-2xl hover:bg-primary/20 transition-colors group/link">
-                    <CheckCircle className="w-6 h-6 text-primary" />
-                  </a>
-                )}
+              <div className="flex flex-col items-end gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl font-black text-primary">{order.priceRobux} R$</span>
+                  <Badge variant="outline" className={`${getPaymentStatusColor(order.paymentStatus)} font-black uppercase tracking-tight text-[10px]`}>
+                    {order.paymentStatus}
+                  </Badge>
+                </div>
+                <div className="flex gap-2">
+                  {order.paymentStatus === 'Unpaid' && (
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest text-[10px] h-9 rounded-xl px-4">
+                          <CreditCard className="w-3 h-3 mr-2" /> Pay Now
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="bg-[#101218] border-zinc-800 text-white rounded-[32px]">
+                        <DialogHeader>
+                          <DialogTitle className="text-2xl font-black uppercase italic tracking-tighter">How to Pay</DialogTitle>
+                          <DialogDescription className="text-zinc-500 font-medium">Follow these steps to complete your Robux payment.</DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 pt-4">
+                          <div className="p-4 bg-zinc-900 rounded-2xl border border-zinc-800">
+                            <p className="text-sm font-medium text-zinc-300">1. Purchase the Gamepass from our group store.</p>
+                            <p className="text-sm font-medium text-zinc-300">2. Ensure the amount matches <span className="text-primary font-bold">{order.priceRobux} R$</span>.</p>
+                            <p className="text-sm font-medium text-zinc-300">3. Join our discord and message the owner with proof.</p>
+                          </div>
+                          <Button 
+                            className="w-full h-12 rounded-xl bg-zinc-800 hover:bg-zinc-700 font-bold uppercase tracking-widest text-xs"
+                            onClick={() => handleUpdatePaymentStatus(order.id, 'Pending Verif')}
+                          >
+                            I have paid, verify me
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                  {order.status === "Ready" && order.imageUrl && order.paymentStatus === "Paid" ? (
+                    <a href={order.imageUrl} download target="_blank" rel="noreferrer" className="p-3 bg-primary/10 rounded-2xl hover:bg-primary/20 transition-colors group/link">
+                      <Download className="w-6 h-6 text-primary" />
+                    </a>
+                  ) : (
+                    <Button variant="ghost" className="text-zinc-500 hover:text-primary gap-2 font-bold uppercase tracking-tighter text-xs h-9" onClick={() => window.open(`https://discord.com/users/${order.discordUser}`, '_blank')}>
+                      <MessageCircle className="w-4 h-4" /> Contact Owner
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
 

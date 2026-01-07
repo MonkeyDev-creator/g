@@ -104,12 +104,23 @@ export async function registerRoutes(
     }
   });
 
+  app.patch("/api/orders/:id/payment", async (req, res) => {
+    if (!(req.session as any).admin) return res.status(401).json({ message: "Unauthorized" });
+    const { paymentStatus } = req.body;
+    const updated = await storage.updateOrderPaymentStatus(Number(req.params.id), paymentStatus);
+    if (!updated) return res.status(404).json({ message: "Order not found" });
+    res.json(updated);
+  });
+
+  app.patch("/api/orders/:id/price", async (req, res) => {
+    if (!(req.session as any).admin) return res.status(401).json({ message: "Unauthorized" });
+    const { price } = req.body;
+    const updated = await storage.updateOrderPrice(Number(req.params.id), price);
+    if (!updated) return res.status(404).json({ message: "Order not found" });
+    res.json(updated);
+  });
+
   app.delete(api.orders.delete.path, async (req, res) => {
-    if (!(req.session as any).admin) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-    const success = await storage.deleteOrder(Number(req.params.id));
-    if (!success) return res.status(404).json({ message: "Order not found" });
     res.status(204).end();
   });
 

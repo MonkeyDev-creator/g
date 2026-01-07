@@ -98,7 +98,25 @@ export default function AdminDashboard() {
     return null;
   }
 
-  const handleUpdateStatus = async (orderId: number, status: string) => {
+  const handleUpdatePaymentStatus = async (orderId: number, paymentStatus: string) => {
+    try {
+      await apiRequest("PATCH", `/api/orders/${orderId}/payment`, { paymentStatus });
+      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+      toast({ title: "Success", description: `Payment status updated to ${paymentStatus}` });
+    } catch (e) {
+      toast({ title: "Error", description: "Failed to update payment status.", variant: "destructive" });
+    }
+  };
+
+  const handleUpdatePrice = async (orderId: number, price: string) => {
+    try {
+      await apiRequest("PATCH", `/api/orders/${orderId}/price`, { price });
+      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+      toast({ title: "Success", description: `Price updated to ${price} Robux` });
+    } catch (e) {
+      toast({ title: "Error", description: "Failed to update price.", variant: "destructive" });
+    }
+  };
     setIsUpdating(true);
     try {
       await apiRequest("PATCH", `/api/orders/${orderId}/status`, { status });
@@ -277,6 +295,28 @@ export default function AdminDashboard() {
                           >
                             <Plus className="w-4 h-4 rotate-45" />
                           </Button>
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] text-zinc-500 uppercase font-black">Price:</span>
+                              <Input 
+                                defaultValue={order.priceRobux} 
+                                className="w-20 h-7 bg-zinc-900 border-zinc-800 text-[10px] rounded-lg"
+                                onBlur={(e) => handleUpdatePrice(order.id, e.target.value)}
+                              />
+                              <span className="text-[10px] text-primary font-black uppercase">R$</span>
+                            </div>
+                            <Select onValueChange={(val) => handleUpdatePaymentStatus(order.id, val)} defaultValue={order.paymentStatus}>
+                              <SelectTrigger className="w-[120px] h-7 bg-zinc-900 border-zinc-800 text-[10px] font-black uppercase tracking-widest rounded-lg">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="bg-zinc-950 border-zinc-800 text-white rounded-xl">
+                                <SelectItem value="Unpaid">Unpaid</SelectItem>
+                                <SelectItem value="Pending Verif">Pending Verif</SelectItem>
+                                <SelectItem value="Paid">Paid</SelectItem>
+                                <SelectItem value="Refunded">Refunded</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
                       </td>
                       <td className="px-8 py-6 text-right">

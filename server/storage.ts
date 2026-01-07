@@ -20,6 +20,9 @@ export interface IStorage {
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
   deleteOrder(id: number): Promise<boolean>;
 
+  updateOrderPaymentStatus(id: number, paymentStatus: string): Promise<Order | undefined>;
+  updateOrderPrice(id: number, price: string): Promise<Order | undefined>;
+
   // Admins
   getAdmin(id: number): Promise<Admin | undefined>;
   getAdminByUsername(username: string): Promise<Admin | undefined>;
@@ -57,6 +60,24 @@ export class DatabaseStorage implements IStorage {
     const [order] = await db
       .update(orders)
       .set({ status })
+      .where(eq(orders.id, id))
+      .returning();
+    return order;
+  }
+
+  async updateOrderPaymentStatus(id: number, paymentStatus: string): Promise<Order | undefined> {
+    const [order] = await db
+      .update(orders)
+      .set({ paymentStatus })
+      .where(eq(orders.id, id))
+      .returning();
+    return order;
+  }
+
+  async updateOrderPrice(id: number, price: string): Promise<Order | undefined> {
+    const [order] = await db
+      .update(orders)
+      .set({ priceRobux: price })
       .where(eq(orders.id, id))
       .returning();
     return order;

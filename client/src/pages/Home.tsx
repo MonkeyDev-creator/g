@@ -43,7 +43,7 @@ export default function Home() {
               </Link>
               <Link href="/tracking">
                 <Button variant="outline" size="lg" className="h-16 px-10 text-xl rounded-2xl border-zinc-800 text-white hover:bg-white/5 font-bold uppercase tracking-tight backdrop-blur-xl">
-                  Track Orders
+                  Track Orders / Pay
                 </Button>
               </Link>
             </div>
