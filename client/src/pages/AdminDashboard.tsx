@@ -261,7 +261,7 @@ export default function AdminDashboard() {
                               </Button>
                             </a>
                           )}
-                          <Button size="icon" variant="ghost" className="h-9 w-9 bg-zinc-900 border border-zinc-800 text-zinc-500 hover:text-blue-400 rounded-xl" title={order.discordUser}>
+                          <Button size="icon" variant="ghost" className="h-9 w-9 bg-zinc-900 border border-zinc-800 text-zinc-500 hover:text-blue-400 rounded-xl" title={order.discordUser} onClick={() => window.open(`https://discord.com/users/${order.discordUser}`, '_blank')}>
                             <MessageSquare className="w-4 h-4" />
                           </Button>
                           <Button 
@@ -280,7 +280,7 @@ export default function AdminDashboard() {
                         </div>
                       </td>
                       <td className="px-8 py-6 text-right">
-                        <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex justify-end gap-3">
                           <Select onValueChange={(val) => handleUpdateStatus(order.id, val)} defaultValue={order.status}>
                             <SelectTrigger className="w-[140px] h-9 bg-zinc-900 border-zinc-800 text-[10px] font-black uppercase tracking-widest rounded-xl">
                               <SelectValue />

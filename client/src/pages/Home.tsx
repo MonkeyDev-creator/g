@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowRight, Star, Shield, Zap, Image as ImageIcon, ChevronRight, MessageSquare } from "lucide-react";
+import { ArrowRight, Star, Shield, Zap, Image as ImageIcon, ChevronRight, MessageSquare, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const img13131 = "https://www.figma.com/api/mcp/asset/064bf2b7-0250-4b34-9788-b538c68a9a75";
@@ -21,21 +21,28 @@ export default function Home() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-6xl md:text-8xl font-black leading-[0.9] text-white mb-8 tracking-tighter uppercase italic text-glow">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full mb-8">
+              <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Next-Gen GFX Solutions</span>
+            </div>
+            
+            <h1 className="text-6xl md:text-8xl font-black leading-[0.9] text-white mb-8 tracking-tighter uppercase italic">
               Get GFX with <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-orange-500 to-yellow-500">ease,</span> <br />
               <span className="text-zinc-800">without any knowledge</span>
             </h1>
-            <p className="text-zinc-500 text-xl max-w-md mb-10 font-medium">
-              Join our Discord to start your journey. Premium graphics delivered by experts.
+            <p className="text-zinc-500 text-xl max-w-md mb-10 font-medium leading-relaxed">
+              Elevate your gaming brand with professional-grade graphics and custom templates designed for top-tier creators.
             </p>
             
             <div className="flex flex-col sm:flex-row items-start gap-4">
-              <Button size="lg" className="h-16 px-10 text-xl rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest shadow-2xl shadow-primary/40 transform hover:-translate-y-1 transition-all">
-                Join Discord <MessageSquare className="ml-3 w-6 h-6" />
-              </Button>
+              <Link href="/order">
+                <Button size="lg" className="h-16 px-10 text-xl rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest shadow-2xl shadow-primary/40 transform hover:-translate-y-1 transition-all">
+                  Order Now <ChevronRight className="ml-3 w-6 h-6" />
+                </Button>
+              </Link>
               <Link href="/tracking">
-                <Button variant="outline" size="lg" className="h-16 px-10 text-xl rounded-2xl border-zinc-800 text-white hover:bg-white/5 font-bold uppercase tracking-tight">
+                <Button variant="outline" size="lg" className="h-16 px-10 text-xl rounded-2xl border-zinc-800 text-white hover:bg-white/5 font-bold uppercase tracking-tight backdrop-blur-xl">
                   Track Orders
                 </Button>
               </Link>
@@ -71,6 +78,29 @@ export default function Home() {
             <PortfolioItem img="https://www.figma.com/api/mcp/asset/35f9a014-eca3-4b00-bd99-5732fb376870" title="Monkey King" />
             <PortfolioItem img="https://www.figma.com/api/mcp/asset/6adbac62-cc97-48a7-bd39-a0ba541ddcc6" title="Neon Night" />
             <PortfolioItem img={img13131} title="Battle Royale" />
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-24 border-b border-zinc-900">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <FeatureCard 
+              icon={<Zap className="w-6 h-6 text-primary" />}
+              title="Lightning Fast"
+              description="Get your high-quality graphics delivered faster than anyone else in the industry."
+            />
+            <FeatureCard 
+              icon={<Shield className="w-6 h-6 text-primary" />}
+              title="Secure Delivery"
+              description="All assets are handled through our secure platform and Discord integration."
+            />
+            <FeatureCard 
+              icon={<Star className="w-6 h-6 text-primary" />}
+              title="Premium Quality"
+              description="Expert-level designs customized perfectly for your brand's unique gaming aesthetic."
+            />
           </div>
         </div>
       </section>
@@ -112,5 +142,17 @@ function PortfolioItem({ img, title }: { img: string, title: string }) {
         </div>
       </div>
     </motion.div>
+  );
+}
+
+function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
+  return (
+    <div className="p-10 rounded-[42px] border border-zinc-900 bg-zinc-900/20 hover:border-primary/20 transition-all hover:bg-zinc-900/30 group">
+      <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 border border-primary/20 group-hover:scale-110 transition-transform">
+        {icon}
+      </div>
+      <h3 className="text-2xl font-black italic tracking-tight uppercase mb-4 text-white">{title}</h3>
+      <p className="text-zinc-500 font-medium leading-relaxed">{description}</p>
+    </div>
   );
 }
