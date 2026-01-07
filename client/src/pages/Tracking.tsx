@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useOrders } from "@/hooks/use-orders";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, 
@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { motion, AnimatePresence } from "framer-motion";
+import { format } from "date-fns";
 
 export default function Tracking() {
   const [emailSearch, setEmailSearch] = useState("");
