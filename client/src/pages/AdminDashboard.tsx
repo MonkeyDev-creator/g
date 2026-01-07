@@ -98,25 +98,7 @@ export default function AdminDashboard() {
     return null;
   }
 
-  const handleUpdatePaymentStatus = async (orderId: number, paymentStatus: string) => {
-    try {
-      await apiRequest("PATCH", `/api/orders/${orderId}/payment`, { paymentStatus });
-      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
-      toast({ title: "Success", description: `Payment status updated to ${paymentStatus}` });
-    } catch (e) {
-      toast({ title: "Error", description: "Failed to update payment status.", variant: "destructive" });
-    }
-  };
-
-  const handleUpdatePrice = async (orderId: number, price: string) => {
-    try {
-      await apiRequest("PATCH", `/api/orders/${orderId}/price`, { price });
-      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
-      toast({ title: "Success", description: `Price updated to ${price} Robux` });
-    } catch (e) {
-      toast({ title: "Error", description: "Failed to update price.", variant: "destructive" });
-    }
-  };
+  const handleUpdateStatus = async (orderId: number, status: string) => {
     setIsUpdating(true);
     try {
       await apiRequest("PATCH", `/api/orders/${orderId}/status`, { status });
@@ -124,6 +106,32 @@ export default function AdminDashboard() {
       toast({ title: "Success", description: `Status changed to ${status}` });
     } catch (e) {
       toast({ title: "Error", description: "Failed to update status.", variant: "destructive" });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleUpdatePaymentStatus = async (orderId: number, paymentStatus: string) => {
+    setIsUpdating(true);
+    try {
+      await apiRequest("PATCH", `/api/orders/${orderId}/payment`, { paymentStatus });
+      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+      toast({ title: "Success", description: `Payment status updated to ${paymentStatus}` });
+    } catch (e) {
+      toast({ title: "Error", description: "Failed to update payment status.", variant: "destructive" });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleUpdatePrice = async (orderId: number, price: string) => {
+    setIsUpdating(true);
+    try {
+      await apiRequest("PATCH", `/api/orders/${orderId}/price`, { price });
+      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+      toast({ title: "Success", description: `Price updated to ${price} Robux` });
+    } catch (e) {
+      toast({ title: "Error", description: "Failed to update price.", variant: "destructive" });
     } finally {
       setIsUpdating(false);
     }
