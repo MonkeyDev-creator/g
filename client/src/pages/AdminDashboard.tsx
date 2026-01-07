@@ -51,6 +51,9 @@ export default function AdminDashboard() {
   const { logout } = useAdminAuth();
   const [isUpdating, setIsUpdating] = useState(false);
   const [isMaintenance, setIsMaintenance] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [sortBy, setSortBy] = useState("newest");
 
   // Fetch maintenance status
   useEffect(() => {
@@ -71,6 +74,23 @@ export default function AdminDashboard() {
       toast({ title: "Error", description: "Failed to toggle maintenance mode.", variant: "destructive" });
     }
   };
+
+  const filteredOrders = orders?.filter(order => {
+    const matchesSearch = 
+      order.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.discordUser.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.robloxUser.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.gfxType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.id.toString().includes(searchTerm);
+    
+    const matchesStatus = statusFilter === "All" || order.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  }).sort((a, b) => {
+    if (sortBy === "newest") return b.id - a.id;
+    if (sortBy === "oldest") return a.id - b.id;
+    return 0;
+  });
 
   if (adminLoading) return <div className="flex h-screen items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>;
   if (!admin) {
@@ -162,9 +182,42 @@ export default function AdminDashboard() {
         </div>
 
         <Card className="bg-[#101218] border-zinc-800 rounded-[32px] overflow-hidden">
-          <CardHeader className="border-b border-zinc-800 p-8">
-            <CardTitle className="text-2xl font-black uppercase italic tracking-tighter">Orders Pipeline</CardTitle>
-            <CardDescription className="text-zinc-500 font-medium">Process and manage customer commissions.</CardDescription>
+          <CardHeader className="border-b border-zinc-800 p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <CardTitle className="text-2xl font-black uppercase italic tracking-tighter">Orders Pipeline</CardTitle>
+              <CardDescription className="text-zinc-500 font-medium">Process and manage customer commissions.</CardDescription>
+            </div>
+            <div className="flex flex-wrap gap-3 w-full md:w-auto">
+              <Input 
+                placeholder="Search orders..." 
+                className="w-full md:w-64 bg-zinc-900/50 border-zinc-800 rounded-xl h-10 text-xs"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[120px] h-10 bg-zinc-900/50 border-zinc-800 text-xs rounded-xl">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-950 border-zinc-800 text-white rounded-xl">
+                  <SelectItem value="All">All Statuses</SelectItem>
+                  <SelectItem value="Pending">Pending</SelectItem>
+                  <SelectItem value="In Progress">In Progress</SelectItem>
+                  <SelectItem value="Making">Making</SelectItem>
+                  <SelectItem value="Ready">Ready</SelectItem>
+                  <SelectItem value="Completed">Completed</SelectItem>
+                  <SelectItem value="Cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-[120px] h-10 bg-zinc-900/50 border-zinc-800 text-xs rounded-xl">
+                  <SelectValue placeholder="Sort By" />
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-950 border-zinc-800 text-white rounded-xl">
+                  <SelectItem value="newest">Newest First</SelectItem>
+                  <SelectItem value="oldest">Oldest First</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
@@ -179,7 +232,7 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800/50">
-                  {orders?.map((order) => (
+                  {filteredOrders?.map((order) => (
                     <tr key={order.id} className="hover:bg-white/[0.02] transition-colors group">
                       <td className="px-8 py-6">
                         <div className="flex flex-col">
