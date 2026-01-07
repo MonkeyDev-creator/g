@@ -137,6 +137,16 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleTogglePayable = async (orderId: number, isPayable: boolean) => {
+    try {
+      await apiRequest("PATCH", `/api/orders/${orderId}/payable`, { isPayable });
+      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+      toast({ title: "Success", description: `Order is now ${isPayable ? 'payable' : 'not payable'}` });
+    } catch (e) {
+      toast({ title: "Error", description: "Failed to update payable status.", variant: "destructive" });
+    }
+  };
+
   const handleDeleteOrder = async (orderId: number) => {
     if (!confirm("Are you sure you want to delete this order?")) return;
     try {
@@ -324,6 +334,17 @@ export default function AdminDashboard() {
                                 <SelectItem value="Refunded">Refunded</SelectItem>
                               </SelectContent>
                             </Select>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-[10px] text-zinc-500 uppercase font-black">Payable:</span>
+                              <Button 
+                                size="sm" 
+                                variant={order.isPayable ? "default" : "outline"}
+                                className="h-6 px-2 text-[10px] font-black uppercase rounded-md"
+                                onClick={() => handleTogglePayable(order.id, !order.isPayable)}
+                              >
+                                {order.isPayable ? "ON" : "OFF"}
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </td>

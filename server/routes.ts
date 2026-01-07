@@ -120,6 +120,22 @@ export async function registerRoutes(
     res.json(updated);
   });
 
+  app.patch("/api/orders/:id/payable", async (req, res) => {
+    if (!(req.session as any).admin) return res.status(401).json({ message: "Unauthorized" });
+    const { isPayable } = req.body;
+    const updated = await storage.updateOrderPayable(Number(req.params.id), isPayable);
+    if (!updated) return res.status(404).json({ message: "Order not found" });
+    res.json(updated);
+  });
+
+  app.patch("/api/orders/:id/watermark", async (req, res) => {
+    if (!(req.session as any).admin) return res.status(401).json({ message: "Unauthorized" });
+    const { watermarkUrl } = req.body;
+    const updated = await storage.updateOrderWatermark(Number(req.params.id), watermarkUrl);
+    if (!updated) return res.status(404).json({ message: "Order not found" });
+    res.json(updated);
+  });
+
   app.delete(api.orders.delete.path, async (req, res) => {
     res.status(204).end();
   });

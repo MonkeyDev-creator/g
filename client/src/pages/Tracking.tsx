@@ -171,32 +171,61 @@ function OrderCard({ order }: { order: any }) {
                   </Badge>
                 </div>
                 <div className="flex gap-2">
+                  {order.watermarkUrl && order.paymentStatus !== "Paid" && (
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button size="sm" variant="outline" className="h-9 px-4 border-zinc-800 text-white hover:bg-white/5 font-black uppercase text-[10px] rounded-xl">
+                          Preview Preview
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="bg-[#101218] border-zinc-800 text-white rounded-[32px] max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle className="text-2xl font-black uppercase italic tracking-tighter">GFX Preview (Watermarked)</DialogTitle>
+                        </DialogHeader>
+                        <div className="aspect-video relative rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800">
+                          <img src={order.watermarkUrl} alt="Watermarked Preview" className="w-full h-full object-cover" />
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  )}
                   {order.paymentStatus === 'Unpaid' && (
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest text-[10px] h-9 rounded-xl px-4">
+                        <Button 
+                          size="sm" 
+                          className="bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest text-[10px] h-9 rounded-xl px-4"
+                          onClick={(e) => {
+                            if (!order.isPayable) {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              toast({ title: "Access Denied", description: "You cannot pay now. The admin hasn't enabled payments for this order yet.", variant: "destructive" });
+                            }
+                          }}
+                        >
                           <CreditCard className="w-3 h-3 mr-2" /> Pay Now
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="bg-[#101218] border-zinc-800 text-white rounded-[32px]">
-                        <DialogHeader>
-                          <DialogTitle className="text-2xl font-black uppercase italic tracking-tighter">How to Pay</DialogTitle>
-                          <DialogDescription className="text-zinc-500 font-medium">Follow these steps to complete your Robux payment.</DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4 pt-4">
-                          <div className="p-4 bg-zinc-900 rounded-2xl border border-zinc-800">
-                            <p className="text-sm font-medium text-zinc-300">1. Purchase the Gamepass from our group store.</p>
-                            <p className="text-sm font-medium text-zinc-300">2. Ensure the amount matches <span className="text-primary font-bold">{order.priceRobux} R$</span>.</p>
-                            <p className="text-sm font-medium text-zinc-300">3. Join our discord and message the owner with proof.</p>
+                      {order.isPayable && (
+                        <DialogContent className="bg-[#101218] border-zinc-800 text-white rounded-[32px]">
+                          <DialogHeader>
+                            <DialogTitle className="text-2xl font-black uppercase italic tracking-tighter">How to Pay</DialogTitle>
+                            <DialogDescription className="text-zinc-500 font-medium">Follow these steps to complete your Robux payment.</DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4 pt-4">
+                            <div className="p-4 bg-zinc-900 rounded-2xl border border-zinc-800">
+                              <p className="text-sm font-medium text-zinc-300">1. Purchase the Gamepass from our group store.</p>
+                              <p className="text-sm font-medium text-zinc-300">2. Ensure the amount matches <span className="text-primary font-bold">{order.priceRobux} R$</span>.</p>
+                              <p className="text-sm font-medium text-zinc-300">3. Join our discord and message the owner with proof.</p>
+                            </div>
+                            <Button 
+                              className="w-full h-12 rounded-xl bg-zinc-800 hover:bg-zinc-700 font-bold uppercase tracking-widest text-xs"
+                              onClick={() => handleUpdatePaymentStatus(order.id, 'Pending Verif')}
+                            >
+                              I have paid, verify me
+                            </Button>
                           </div>
-                          <Button 
-                            className="w-full h-12 rounded-xl bg-zinc-800 hover:bg-zinc-700 font-bold uppercase tracking-widest text-xs"
-                            onClick={() => handleUpdatePaymentStatus(order.id, 'Pending Verif')}
-                          >
-                            I have paid, verify me
-                          </Button>
-                        </div>
-                      </DialogContent>
+                        </DialogContent>
+                      )}
                     </Dialog>
                   )}
                   {order.status === "Ready" && order.imageUrl && order.paymentStatus === "Paid" ? (

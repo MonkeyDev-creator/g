@@ -22,6 +22,8 @@ export const orders = pgTable("orders", {
   status: text("status").default("Pending").notNull(),
   priceRobux: text("price_robux").default("0").notNull(),
   paymentStatus: text("payment_status").default("Unpaid").notNull(),
+  watermarkUrl: text("watermark_url"),
+  isPayable: boolean("is_payable").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

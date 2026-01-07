@@ -22,6 +22,8 @@ export interface IStorage {
 
   updateOrderPaymentStatus(id: number, paymentStatus: string): Promise<Order | undefined>;
   updateOrderPrice(id: number, price: string): Promise<Order | undefined>;
+  updateOrderPayable(id: number, isPayable: boolean): Promise<Order | undefined>;
+  updateOrderWatermark(id: number, watermarkUrl: string): Promise<Order | undefined>;
 
   // Admins
   getAdmin(id: number): Promise<Admin | undefined>;
@@ -78,6 +80,24 @@ export class DatabaseStorage implements IStorage {
     const [order] = await db
       .update(orders)
       .set({ priceRobux: price })
+      .where(eq(orders.id, id))
+      .returning();
+    return order;
+  }
+
+  async updateOrderPayable(id: number, isPayable: boolean): Promise<Order | undefined> {
+    const [order] = await db
+      .update(orders)
+      .set({ isPayable })
+      .where(eq(orders.id, id))
+      .returning();
+    return order;
+  }
+
+  async updateOrderWatermark(id: number, watermarkUrl: string): Promise<Order | undefined> {
+    const [order] = await db
+      .update(orders)
+      .set({ watermarkUrl })
       .where(eq(orders.id, id))
       .returning();
     return order;
