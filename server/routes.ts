@@ -19,14 +19,28 @@ export async function registerRoutes(
 
   // Maintenance Middleware
   app.use(async (req, res, next) => {
-    const isMaintenance = await storage.getMaintenanceMode();
-    const isAdmin = (req.session as any).admin;
-    
-    if (isMaintenance && !isAdmin && !req.path.startsWith('/api/admin/login') && !req.path.startsWith('/api/admin/me')) {
-      if (req.path.startsWith('/api')) {
-        return res.status(503).json({ message: "System under maintenance" });
+    // Skip maintenance check for static files and essential admin paths
+    if (
+      req.path.startsWith('/assets') || 
+      req.path.startsWith('/@') || 
+      req.path.startsWith('/api/admin/login') || 
+      req.path.startsWith('/api/admin/me') ||
+      req.path.startsWith('/api/admin/maintenance')
+    ) {
+      return next();
+    }
+
+    try {
+      const isMaintenance = await storage.getMaintenanceMode();
+      const isAdmin = (req.session as any).admin;
+      
+      if (isMaintenance && !isAdmin) {
+        if (req.path.startsWith('/api')) {
+          return res.status(503).json({ message: "System under maintenance" });
+        }
       }
-      // For frontend routes, we'll handle this in the client but also provide a fallback
+    } catch (e) {
+      console.error("Maintenance middleware error:", e);
     }
     next();
   });

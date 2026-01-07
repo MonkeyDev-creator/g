@@ -31,19 +31,35 @@ function MaintenanceView() {
 function Router() {
   const [isMaintenance, setIsMaintenance] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check maintenance status
-    fetch("/api/admin/maintenance")
-      .then(res => res.json())
-      .then(data => setIsMaintenance(data.enabled));
+    const checkStatus = async () => {
+      try {
+        const [mRes, aRes] = await Promise.all([
+          fetch("/api/admin/maintenance"),
+          fetch("/api/admin/me")
+        ]);
+        
+        if (mRes.ok) {
+          const data = await mRes.json();
+          setIsMaintenance(data.enabled);
+        }
+        
+        if (aRes.ok) {
+          setIsAdmin(true);
+        }
+      } catch (e) {
+        console.error("Status check failed", e);
+      } finally {
+        setLoading(false);
+      }
+    };
     
-    // Check if user is admin
-    fetch("/api/admin/me")
-      .then(res => {
-        if (res.ok) setIsAdmin(true);
-      });
+    checkStatus();
   }, []);
+
+  if (loading) return null;
 
   if (isMaintenance && !isAdmin) {
     return <MaintenanceView />;

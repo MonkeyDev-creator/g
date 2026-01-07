@@ -17,7 +17,7 @@ export const sessionSettings: session.SessionOptions = {
   saveUninitialized: false,
   cookie: {
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    secure: process.env.NODE_ENV === "production",
+    secure: false, // Set to false to work on Replit domains which handle SSL at proxy level
     sameSite: "lax",
   },
 };
