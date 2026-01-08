@@ -77,11 +77,14 @@ export default function AdminDashboard() {
   };
 
   const filteredOrders = orders?.filter(order => {
+    if (!order) return false;
+    
+    const searchLower = searchTerm.toLowerCase();
     const matchesSearch = 
-      (order.email?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
-      (order.discordUser?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
-      (order.robloxUser?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
-      (order.gfxType?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+      (order.email?.toLowerCase().includes(searchLower) || false) ||
+      (order.discordUser?.toLowerCase().includes(searchLower) || false) ||
+      (order.robloxUser?.toLowerCase().includes(searchLower) || false) ||
+      (order.gfxType?.toLowerCase().includes(searchLower) || false) ||
       order.id.toString().includes(searchTerm);
     
     const matchesStatus = statusFilter === "All" || order.status === statusFilter;
@@ -346,7 +349,9 @@ export default function AdminDashboard() {
                                 {order.isPayable ? "ON" : "OFF"}
                               </Button>
                             </div>
-                            <OrderTasks orderId={order.id} />
+                            <div className="mt-4">
+                              <OrderTasks orderId={order.id} />
+                            </div>
                           </div>
                         </div>
                       </td>
