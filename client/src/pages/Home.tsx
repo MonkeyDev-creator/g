@@ -21,15 +21,15 @@ export default function Home() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full mb-8">
-              <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Next-Gen GFX Solutions</span>
+            <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-white/5 border border-white/10 rounded-full mb-8 backdrop-blur-md hover:bg-white/10 transition-colors">
+              <span className="w-2.5 h-2.5 bg-primary rounded-full animate-pulse shadow-[0_0_10px_rgba(255,107,0,0.8)]" />
+              <span className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-300">Premium GFX Studio</span>
             </div>
             
-            <h1 className="text-6xl md:text-8xl font-black leading-[0.9] text-white mb-8 tracking-tighter uppercase italic drop-shadow-[0_0_30px_rgba(255,107,0,0.4)]">
+            <h1 className="text-6xl md:text-[7rem] font-black leading-[0.85] text-white mb-10 tracking-tighter uppercase italic drop-shadow-[0_0_50px_rgba(255,107,0,0.4)]">
               Get GFX with <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-orange-500 to-yellow-500">ease,</span> <br />
-              <span className="text-zinc-500/50">without any knowledge</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-orange-500 to-yellow-500 animate-gradient-x">ease,</span> <br />
+              <span className="text-zinc-800/80">without any knowledge</span>
             </h1>
             <p className="text-zinc-500 text-xl max-w-md mb-10 font-medium leading-relaxed">
               Elevate your gaming brand with professional-grade graphics and custom templates designed for top-tier creators.
@@ -131,10 +131,10 @@ export default function Home() {
 function PortfolioItem({ img, title }: { img: string, title: string }) {
   return (
     <motion.div 
-      whileHover={{ y: -10 }}
-      className="group relative aspect-square bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-800 hover:border-primary/50 transition-all duration-300"
+      whileHover={{ y: -12, scale: 1.02 }}
+      className="group relative aspect-square glass-card rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-primary/40 transition-all duration-500 shadow-2xl"
     >
-      <img src={img} alt={title} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
+      <img src={img} alt={title} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-700 group-hover:scale-110" />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
         <div>
           <p className="text-primary font-bold uppercase text-xs tracking-[0.2em] mb-1">Featured</p>
@@ -147,12 +147,12 @@ function PortfolioItem({ img, title }: { img: string, title: string }) {
 
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
   return (
-    <div className="p-10 rounded-[42px] border border-zinc-900 bg-zinc-900/20 hover:border-primary/20 transition-all hover:bg-zinc-900/30 group">
-      <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 border border-primary/20 group-hover:scale-110 transition-transform">
+    <div className="p-10 rounded-[3rem] glass-card hover:border-primary/30 transition-all duration-500 hover:-translate-y-2 group">
+      <div className="w-16 h-16 rounded-[1.5rem] bg-primary/10 flex items-center justify-center mb-8 border border-primary/20 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-500 shadow-[0_0_20px_rgba(255,107,0,0.1)]">
         {icon}
       </div>
-      <h3 className="text-2xl font-black italic tracking-tight uppercase mb-4 text-white">{title}</h3>
-      <p className="text-zinc-500 font-medium leading-relaxed">{description}</p>
+      <h3 className="text-2xl font-black italic tracking-tight uppercase mb-4 text-white group-hover:text-primary transition-colors">{title}</h3>
+      <p className="text-zinc-500 font-medium leading-relaxed group-hover:text-zinc-300 transition-colors">{description}</p>
     </div>
   );
 }
