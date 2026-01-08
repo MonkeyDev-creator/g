@@ -136,6 +136,29 @@ export async function registerRoutes(
     res.json(updated);
   });
 
+  app.get("/api/orders/:id/tasks", async (req, res) => {
+    const tasks = await storage.getTasksByOrder(Number(req.params.id));
+    res.json(tasks);
+  });
+
+  app.post("/api/orders/:id/tasks", async (req, res) => {
+    if (!(req.session as any).admin) return res.status(401).json({ message: "Unauthorized" });
+    const task = await storage.createTask({ ...req.body, orderId: Number(req.params.id) });
+    res.status(201).json(task);
+  });
+
+  app.patch("/api/tasks/:id", async (req, res) => {
+    if (!(req.session as any).admin) return res.status(401).json({ message: "Unauthorized" });
+    const task = await storage.updateTask(Number(req.params.id), req.body.isCompleted);
+    res.json(task);
+  });
+
+  app.delete("/api/tasks/:id", async (req, res) => {
+    if (!(req.session as any).admin) return res.status(401).json({ message: "Unauthorized" });
+    await storage.deleteTask(Number(req.params.id));
+    res.status(204).end();
+  });
+
   app.delete(api.orders.delete.path, async (req, res) => {
     res.status(204).end();
   });

@@ -32,6 +32,15 @@ export const systemSettings = pgTable("system_settings", {
   maintenanceMode: boolean("maintenance_mode").default(false).notNull(),
 });
 
+export const tasks = pgTable("tasks", {
+  id: serial("id").primaryKey(),
+  orderId: serial("order_id").references(() => orders.id),
+  title: text("title").notNull(),
+  description: text("description"),
+  isCompleted: boolean("is_completed").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertOrderSchema = createInsertSchema(orders).omit({
   id: true,
   createdAt: true,

@@ -42,6 +42,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 export default function AdminDashboard() {
   const { data: admin, isLoading: adminLoading } = useAdminMe();
@@ -345,6 +346,7 @@ export default function AdminDashboard() {
                                 {order.isPayable ? "ON" : "OFF"}
                               </Button>
                             </div>
+                            <OrderTasks orderId={order.id} />
                           </div>
                         </div>
                       </td>
@@ -380,6 +382,84 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
         </Card>
+      </div>
+    </div>
+  );
+}
+
+function OrderTasks({ orderId }: { orderId: number }) {
+  const { data: tasks, isLoading } = useQuery<any[]>({ queryKey: [`/api/orders/${orderId}/tasks`] });
+  const { toast } = useToast();
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+
+  const handleAddTask = async () => {
+    if (!newTaskTitle.trim()) return;
+    try {
+      await apiRequest("POST", `/api/orders/${orderId}/tasks`, { title: newTaskTitle });
+      queryClient.invalidateQueries({ queryKey: [`/api/orders/${orderId}/tasks`] });
+      setNewTaskTitle("");
+    } catch (e) {
+      toast({ title: "Error", description: "Failed to add task.", variant: "destructive" });
+    }
+  };
+
+  const handleToggleTask = async (taskId: number, isCompleted: boolean) => {
+    try {
+      await apiRequest("PATCH", `/api/tasks/${taskId}`, { isCompleted });
+      queryClient.invalidateQueries({ queryKey: [`/api/orders/${orderId}/tasks`] });
+    } catch (e) {
+      toast({ title: "Error", description: "Failed to update task.", variant: "destructive" });
+    }
+  };
+
+  const handleDeleteTask = async (taskId: number) => {
+    try {
+      await apiRequest("DELETE", `/api/tasks/${taskId}`);
+      queryClient.invalidateQueries({ queryKey: [`/api/orders/${orderId}/tasks`] });
+    } catch (e) {
+      toast({ title: "Error", description: "Failed to delete task.", variant: "destructive" });
+    }
+  };
+
+  return (
+    <div className="mt-4 space-y-2">
+      <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.2em]">Project Tasks</p>
+      <div className="space-y-1">
+        {tasks?.map((task) => (
+          <div key={task.id} className="flex items-center justify-between gap-2 p-2 bg-zinc-900/50 rounded-lg border border-zinc-800">
+            <div className="flex items-center gap-2">
+              <input 
+                type="checkbox" 
+                checked={task.isCompleted} 
+                onChange={(e) => handleToggleTask(task.id, e.target.checked)}
+                className="w-3 h-3 rounded bg-zinc-800 border-zinc-700 text-primary focus:ring-primary"
+              />
+              <span className={`text-[10px] font-bold ${task.isCompleted ? 'text-zinc-600 line-through' : 'text-zinc-300'}`}>
+                {task.title}
+              </span>
+            </div>
+            <Button 
+              size="icon" 
+              variant="ghost" 
+              className="h-4 w-4 text-zinc-600 hover:text-red-500"
+              onClick={() => handleDeleteTask(task.id)}
+            >
+              <Trash2 className="w-2 h-2" />
+            </Button>
+          </div>
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <Input 
+          value={newTaskTitle}
+          onChange={(e) => setNewTaskTitle(e.target.value)}
+          placeholder="New task..."
+          className="h-7 bg-zinc-900 border-zinc-800 text-[10px] rounded-lg"
+          onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
+        />
+        <Button size="icon" className="h-7 w-7 rounded-lg" onClick={handleAddTask}>
+          <Plus className="w-3 h-3" />
+        </Button>
       </div>
     </div>
   );

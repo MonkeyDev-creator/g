@@ -3,6 +3,7 @@ import {
   orders,
   admins,
   systemSettings,
+  tasks as tasksTable,
   type InsertOrder,
   type Order,
   type UpdateOrderStatus,
@@ -24,6 +25,12 @@ export interface IStorage {
   updateOrderPrice(id: number, price: string): Promise<Order | undefined>;
   updateOrderPayable(id: number, isPayable: boolean): Promise<Order | undefined>;
   updateOrderWatermark(id: number, watermarkUrl: string): Promise<Order | undefined>;
+
+  // Tasks
+  getTasksByOrder(orderId: number): Promise<any[]>;
+  createTask(task: any): Promise<any>;
+  updateTask(id: number, isCompleted: boolean): Promise<any>;
+  deleteTask(id: number): Promise<boolean>;
 
   // Admins
   getAdmin(id: number): Promise<Admin | undefined>;
@@ -101,6 +108,25 @@ export class DatabaseStorage implements IStorage {
       .where(eq(orders.id, id))
       .returning();
     return order;
+  }
+
+  async getTasksByOrder(orderId: number): Promise<any[]> {
+    return await db.select().from(tasksTable).where(eq(tasksTable.orderId, orderId));
+  }
+
+  async createTask(task: any): Promise<any> {
+    const [newTask] = await db.insert(tasksTable).values(task).returning();
+    return newTask;
+  }
+
+  async updateTask(id: number, isCompleted: boolean): Promise<any> {
+    const [task] = await db.update(tasksTable).set({ isCompleted }).where(eq(tasksTable.id, id)).returning();
+    return task;
+  }
+
+  async deleteTask(id: number): Promise<boolean> {
+    const result = await db.delete(tasksTable).where(eq(tasksTable.id, id)).returning();
+    return result.length > 0;
   }
 
   async deleteOrder(id: number): Promise<boolean> {
