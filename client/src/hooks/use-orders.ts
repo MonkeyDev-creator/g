@@ -7,15 +7,16 @@ export function useOrders(email?: string) {
   return useQuery({
     queryKey: [api.orders.list.path, email],
     queryFn: async () => {
-      // Only fetch if email is provided, otherwise return empty array or handle accordingly
-      if (!email) return [];
-      
-      const url = `${api.orders.list.path}?email=${encodeURIComponent(email)}`;
+      const url = email 
+        ? `${api.orders.list.path}?email=${encodeURIComponent(email)}`
+        : api.orders.list.path;
+        
       const res = await fetch(url, { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch orders");
       return api.orders.list.responses[200].parse(await res.json());
     },
-    enabled: !!email && email.length > 3,
+    // Only enable if email is NOT provided (admin view) OR if email is valid search
+    enabled: !email || (!!email && email.length > 3),
   });
 }
 

@@ -79,6 +79,11 @@ export default function AdminDashboard() {
   const filteredOrders = orders?.filter(order => {
     if (!order) return false;
     
+    // Always include order if no search term, or search specifically matches
+    if (!searchTerm) {
+      return statusFilter === "All" || order.status === statusFilter;
+    }
+
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch = 
       (order.email?.toLowerCase().includes(searchLower) || false) ||
@@ -272,7 +277,13 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800/50">
-                  {filteredOrders?.map((order) => (
+                  {(!filteredOrders || filteredOrders.length === 0) ? (
+                    <tr>
+                      <td colSpan={5} className="px-8 py-20 text-center">
+                        <p className="text-zinc-500 font-bold uppercase tracking-widest">No orders found in pipeline</p>
+                      </td>
+                    </tr>
+                  ) : filteredOrders.map((order) => (
                     <tr key={order.id} className="hover:bg-white/[0.02] transition-colors group">
                       <td className="px-8 py-6">
                         <div className="flex flex-col">
