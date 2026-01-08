@@ -77,10 +77,10 @@ export default function AdminDashboard() {
 
   const filteredOrders = orders?.filter(order => {
     const matchesSearch = 
-      order.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.discordUser.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.robloxUser.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.gfxType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (order.email?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+      (order.discordUser?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+      (order.robloxUser?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+      (order.gfxType?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
       order.id.toString().includes(searchTerm);
     
     const matchesStatus = statusFilter === "All" || order.status === statusFilter;

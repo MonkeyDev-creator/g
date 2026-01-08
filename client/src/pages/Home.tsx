@@ -26,10 +26,10 @@ export default function Home() {
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Next-Gen GFX Solutions</span>
             </div>
             
-            <h1 className="text-6xl md:text-8xl font-black leading-[0.9] text-white mb-8 tracking-tighter uppercase italic">
+            <h1 className="text-6xl md:text-8xl font-black leading-[0.9] text-white mb-8 tracking-tighter uppercase italic drop-shadow-[0_0_30px_rgba(255,107,0,0.4)]">
               Get GFX with <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-orange-500 to-yellow-500">ease,</span> <br />
-              <span className="text-zinc-800">without any knowledge</span>
+              <span className="text-zinc-500/50">without any knowledge</span>
             </h1>
             <p className="text-zinc-500 text-xl max-w-md mb-10 font-medium leading-relaxed">
               Elevate your gaming brand with professional-grade graphics and custom templates designed for top-tier creators.
