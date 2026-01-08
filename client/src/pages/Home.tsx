@@ -74,8 +74,8 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <PortfolioItem img="https://www.figma.com/api/mcp/asset/44c21c47-0a7d-4a55-9e16-3261cd07cea6" title="Cyberpunk Vibe" />
-            <PortfolioItem img="https://www.figma.com/api/mcp/asset/35f9a014-eca3-4b00-bd99-5732fb376870" title="Monkey King" />
+            <PortfolioItem img="feffr.png" title="Gun Shooter" />
+            <PortfolioItem img="untitled(8)" title="Monkey King" />
             <PortfolioItem img="https://www.figma.com/api/mcp/asset/6adbac62-cc97-48a7-bd39-a0ba541ddcc6" title="Neon Night" />
             <PortfolioItem img={img13131} title="Battle Royale" />
           </div>
